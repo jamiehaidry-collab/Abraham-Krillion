@@ -138,7 +138,19 @@ describe('matchAnswer', () => {
   });
   test('title-free answers', () => {
     assert.equal(hit('Johnson', staff), 'Dr Johnson');
-    assert.equal(hit('Mr Johnson', staff), null, 'a different title is a different person');
+    assert.equal(hit('Mr Johnson', staff), 'Dr Johnson', 'Dr goes with any title');
+    assert.equal(hit('Miss Kulin', staff), 'Mrs Kulin', 'Miss, Ms and Mrs are interchangeable');
+    assert.equal(hit('Ms Kulin', staff), 'Mrs Kulin');
+    const titled = prompt(`# Staff
+Mr Geyton = 3
+Ms Wang = 6
+`);
+    assert.equal(hit('Mrs Geyton', titled), null, 'Mr and Mrs are different people');
+    assert.equal(hit('Geyton', titled), 'Mr Geyton');
+    assert.equal(hit('Mrs Wang', titled), 'Ms Wang');
+    assert.equal(hit('Miss Wang', titled), 'Ms Wang');
+    assert.equal(hit('Mr Wang', titled), null);
+    assert.equal(hit('Mr Kulin', staff), 'Mr Kulin');
   });
   test('ambiguous answer gets the more common (lower) tier', () => {
     assert.equal(hit('Kulin', staff), 'Mr Kulin');

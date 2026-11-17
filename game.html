@@ -49,9 +49,42 @@
 // HOUSE PROMPTS (from the prefects)
 // Prefect tiers map to game tiers: Plankton = 1, Too Clever = 2,
 // Schooler = 3, Rare = 4, Deep Cut = 5, Krillion = 6.
-// Still to come: staff (Aidan), past Heads of House (Bing),
-// School Prefects in house (Dev), what's always in the fridge (Jago).
+// Still to come: past Heads of House (Bing).
 // ---------------------------------------------------------------
+
+// Aidan
+# Name a member of Abraham staff, past or present (tutors, matron, etc.)
+// Titles and first names are optional: "Kulin", "Mr Kulin" and "Chris Kulin" all count.
+Mr Kulin / Chris Kulin = 1
+Mrs Kulin / Hannah Kulin = 1
+Mr Geyton = 1
+Miss Willis = 1
+Dr Johnson = 1
+Mr Ledger = 1
+Mr Harrison = 1
+Miss Lewis = 1
+Mr Whiteman = 1
+Miss Parkes = 1
+Miss Wigley = 1
+Mr Shah = 1
+Miss Heppel = 1
+Mr Baughn = 2
+Mr Martinez = 2
+Mr Kipferler = 2
+Mrs Scott = 3
+Dr Dawson = 3
+Miss Hearn = 3
+Dr Smith = 3
+Mr Cooksey = 4
+Mr Wood = 4
+Dr Edusei = 4
+Mr Fulton = 5
+Mr Davies = 5
+Mr Douglas = 5
+Miss Benham = 5
+Mr Davidson = 5
+Mr Esdon = 5
+Ms Wang = 6
 
 // Praj
 # Name an Abraham tradition, event or house trophy
@@ -65,19 +98,32 @@ House family football / Family football / House football = 1
 House family dodgeball / Family dodgeball / House dodgeball = 1
 House family mini golf / Mini golf / Crazy golf / Family mini golf = 1
 Boarders Got Talent / BGT = 1
+Desert Island Discs / Desert Island Disks = 1
 House pool / Pool competition = 1
 House family beach volleyball / Beach volleyball / Volleyball / Family beach volleyball = 1
 House assembly / Assembly / House assemblies = 2
 Gold award dinner / Gold award / Gold awards dinner / Gold dinner = 3
 Room rewards / Room reward / Best room = 3
+Tutor introduction presentations / Tutor introductions / Tutor presentations / Tutor intro presentations / Tutor intros = 3
 Milk for Head of House at Christmas dinner / Milk for Head of House / Milk for the Head of House / Milk at Christmas dinner / Milk = 4
 Room reward pizza night / Pizza night / Room reward pizza = 4
 Battle of the Hams / Battle of the Ham = 4
 Three Peaks Challenge / Three Peaks / 3 Peaks / 3 Peaks Challenge = 4
+Kind, Courageous Gentleman / Kind Courageous Gentleman award / Kind and Courageous Gentleman = 4
 House diplomacy game / Diplomacy / Diplomacy game / House diplomacy = 5
 Mindfulness Mondays (with Ms Slater) / Mindfulness Mondays / Mindfulness Monday / Mindfulness = 5
 Watching Shrek + arts and craft / Shrek / Watching Shrek / Shrek night / Arts and crafts / Arts and craft = 5
 Mr Martinez's Taskmaster / Taskmaster / Task master / Martinez's Taskmaster / House Taskmaster = 6
+
+// Dev
+# Name a School Prefect in Abraham
+Lucas = 1
+Jago = 2
+Alisher = 2
+Freddie / Freddy / Fred = 3
+Jamie = 4
+Dan / Daniel = 5
+Francisco / Fran = 6
 
 // Bareggi
 # Name a past house song
@@ -86,6 +132,30 @@ Venus = 3
 Hot n Cold / Hot and Cold / Hot 'n' Cold = 4
 Thank U, Next / Thank you next / Thank you, next = 5
 Sweet Escape / The Sweet Escape = 6
+
+// Jago
+# Name something you can always find in the Abraham fridge
+Milk = 1
+Coke / Coca-Cola / Diet Coke / Coke Zero = 1
+Red Bull / Redbull = 1
+Butter = 1
+Jago and Alisher's pizza / Jago's pizza / Alisher's pizza / Pizza = 2
+Out-of-date yoghurt / Out of date yogurt / Yoghurt / Yogurt / Expired yoghurt / Old yoghurt = 2
+Mouldy cheese / Moldy cheese / Cheese / Old cheese = 2
+Frubes / Frube = 3
+Dairylea / Dairy Lea / Dairylea Dunkers / Dairylea triangles = 3
+Ham = 3
+Leftover Domino's / Domino's / Dominos / Domino's pizza / Leftover pizza = 3
+Huel = 4
+Pot Noodle / Pot Noodles = 4
+Mini Babybels / Mini Babybel / Babybel / Babybels = 4
+Peperamis / Peperami / Pepperami = 4
+Monster / Monster Energy = 4
+Biltong = 5
+Kimchi = 5
+A single Krispy Kreme / Krispy Kreme / Krispy Kreme doughnut / Doughnut / Donut = 5
+Leftover takeaway / Takeaway / Old takeaway = 5
+Someone's retainer / Retainer / A retainer / Retainers = 6
 
 // Fran
 # Name a nationality in the Upper Sixth
@@ -829,6 +899,13 @@ const Engine = (() => {
 
   // Titles dropped for "title-free" matching ("Kulin" matches "Mr Kulin").
   const TITLES = new Set(['mr', 'mrs', 'ms', 'miss', 'mx', 'dr', 'sir', 'dame', 'lord', 'lady', 'prof', 'professor', 'rev', 'revd']);
+  // Miss/Ms/Mrs are interchangeable; Mr is different from them; Dr, Prof etc. go with any title.
+  const TITLE_GROUP = { mr: 'm', sir: 'm', lord: 'm', mrs: 'f', ms: 'f', miss: 'f', dame: 'f', lady: 'f' };
+  function titlesMatch(a, b) {
+    if (!a || !b || a === b) return true;
+    const ga = TITLE_GROUP[a.split(' ')[0]], gb = TITLE_GROUP[b.split(' ')[0]];
+    return !ga || !gb || ga === gb;
+  }
   // Small words that mean a phrase is not a "first name + surname".
   const LINK_WORDS = new Set(['a', 'an', 'and', 'the', 'of', 'for', 'to', 'in', 'on', 'at', 'by', 'about', 'with', 'that', 'is', 'it', 'you', 'or', 'as', 'from']);
   // Generic last words that must never match on their own ("Road" is not "Old Kent Road").
@@ -897,7 +974,7 @@ const Engine = (() => {
     if (!allow) return -1;
     if (numerals(a) !== numerals(f)) return -1;           // Henry VII is not a typo of Henry VI
     const ta = splitTitle(a).title, tf = splitTitle(f).title;
-    if (ta && tf && ta !== tf) return -1;                   // Mrs Kulin is not a typo of Mr Kulin
+    if (!titlesMatch(ta, tf)) return -1;                    // Mrs Kulin is not a typo of Mr Kulin
     const d = levenshtein(A, F, allow);
     return d <= allow ? d : -1;
   }
@@ -947,7 +1024,7 @@ const Engine = (() => {
         if (!f.full) continue;
         let d = closeness(full, f.full);
         if (d >= 0) q = Math.min(q, d);
-        if (!title || !f.title || title === f.title) {
+        if (titlesMatch(title, f.title)) {
           d = closeness(bare, f.bare);
           if (d >= 0) q = Math.min(q, 10 + d);
           d = partial(words, f.words);
