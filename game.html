@@ -1310,10 +1310,11 @@ const Scene = (() => {
 
   // ---------- World layout ----------
   const PERCH_Y = 69;      // world px of the house's centre gable finial (ground = 0)
-  const CLIMB = 1500;      // world px from the perch to maximum altitude
+  const CLIMB = 3300;      // world px from the perch to maximum altitude (taller sky: every answer climbs further)
   const TOP = PERCH_Y + CLIMB;
   let maxAlt = 10000;
-  const altToY = (alt) => PERCH_Y + 22 + CLIMB * Math.sqrt(Math.max(0, Math.min(alt, maxAlt * 1.2)) / maxAlt);
+  // Even scale: every metre lifts the eagle the same amount, so later answers climb as far as early ones.
+  const altToY = (alt) => PERCH_Y + 22 + CLIMB * (Math.max(0, Math.min(alt, maxAlt * 1.2)) / maxAlt);
 
   // Sky colour ramp by height (0 = ground, 1 = top of the climb).
   const SKY_STOPS = [[0, '#fbf1c9'], [0.035, '#e2f3d4'], [0.09, '#b4e6e2'], [0.2, '#80cfe6'], [0.36, '#529fd6'], [0.52, '#4a64b6'], [0.67, '#4a3d93'], [0.8, '#2d2565'], [0.91, '#151339'], [1.0, '#080a1c']];
@@ -1333,10 +1334,10 @@ const Scene = (() => {
 
   // Scenery positions (x as a fraction of width so they survive resizes).
   const R = rng(99);
-  const clouds = Array.from({ length: 16 }, (_, i) => ({ fx: R(), y: 170 + i * 52 + R() * 30, k: i % 4, v: 0.6 + R() * 1.6 }));
-  const stars = Array.from({ length: 260 }, () => ({ fx: R(), y: TOP * 0.42 + R() * (TOP * 0.9), b: R(), tw: R() * 6.28 }));
+  const clouds = Array.from({ length: 34 }, (_, i) => ({ fx: R(), y: 160 + i * (CLIMB * 0.62 / 34) + R() * 40, k: i % 4, v: 0.5 + R() * 1.4 }));
+  const stars = Array.from({ length: 520 }, () => ({ fx: R(), y: TOP * 0.42 + R() * (TOP * 0.9), b: R(), tw: R() * 6.28 }));
   const gulls = Array.from({ length: 4 }, (_, i) => ({ fx: R(), y: 95 + i * 34 + R() * 20, v: 4 + R() * 6, ph: R() * 6 }));
-  const TICKS = [500, 1000, 2500, 5000, 7500, 10000];
+  const TICKS = [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 
   // ---------- State ----------
   let W = 130, H = 280, PX = 3, img = null;
@@ -1418,7 +1419,7 @@ const Scene = (() => {
     blit(S.moon, Math.min(W - 10, FX() + 34), TOP * 0.93);
     // Plane on the jet stream with a contrail
     {
-      const wy = PERCH_Y + CLIMB * Math.sqrt(0.7), px = ((still ? 0.3 : (t * 6) / (W + 60)) % 1) * (W + 60) - 30;
+      const wy = altToY(maxAlt * 0.7), px = ((still ? 0.3 : (t * 6) / (W + 60)) % 1) * (W + 60) - 30;
       const row = sy(wy);
       if (row > -10 && row < H + 10) {
         ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(Math.round(px - 40), row - 3, 40, 1);
@@ -1597,14 +1598,14 @@ const Scene = (() => {
     const perched = eagle.perched && eagle.alt <= 0 && eagle.dur === 0;
     if (perched) { blit(S.perch, Math.round(FX() - S.perch.width / 2) + 1, ey); return; }
     const climbing = eagle.dur > 0;
-    if (!still) eagle.phase += (climbing ? 0.9 : 0.35) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
+    if (!still) eagle.phase += (climbing ? 0.55 : 0.22) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
     const amp = Math.min(W * 0.3, 42);
     const cx = still ? FX() : FX() + amp * Math.sin(eagle.phase);
     const right = still || Math.cos(eagle.phase) >= 0;
     const frames = right ? S.eagle : S.eagleL;
-    const fi = still ? 1 : Math.floor(t * (climbing ? 8 : 3.5)) % 4;
+    const fi = still ? 1 : Math.floor(t * (climbing ? 5.5 : 2.5)) % 4;
     const spr = frames[fi];
-    const bob = still ? 0 : Math.round(Math.sin(t * 1.6) * 1.5);
+    const bob = still ? 0 : Math.round(Math.sin(t * 1.1) * 1.5);
     blit(spr, cx - spr.width / 2, ey - spr.height / 2 + bob);
   }
 
@@ -1946,7 +1947,7 @@ const Scene = (() => {
     $('nextBtn').textContent = state.idx + 1 >= state.prompts.length ? 'See your flight' : 'Next prompt';
     show('reveal');
     place('revealSky', 0.62, 0.45);
-    if (animate) Scene.fly(before * 10, after * 10, 2600);
+    if (animate) Scene.fly(before * 10, after * 10, 3800);
     else { Scene.set(after * 10); Scene.snap(); }
     revealAt = Date.now();
     $('live').textContent = r.tier ? `${tierName(r.tier)}, tier ${r.tier}. The eagle climbs ${fmt(r.pts * 10)} metres.` : `${(r.timedOut ? 'Time’s up' : 'Passed')}. No height gained.`;
@@ -1988,7 +1989,7 @@ const Scene = (() => {
     setMaxAltitude();
     place('endSky', 0.55, 0.45);
     Scene.set(0); Scene.snap();
-    Scene.fly(0, pts * 10, 4600);   // replay the whole climb from the roof
+    Scene.fly(0, pts * 10, 6500);   // replay the whole climb from the roof
     updateCountdown();
   }
 
@@ -2107,7 +2108,7 @@ const Scene = (() => {
         rows[i].classList.add('in');
       }
     }
-    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 3600);
+    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 5000);
   }
   function startBoardPolling() {
     clearInterval(boardTimer);
