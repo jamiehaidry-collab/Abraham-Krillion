@@ -1,8 +1,8 @@
-# Deep End
+# High Flyer
 
-A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the deeper you go. Fan-made, based on [Krillion](https://krillion.io) by kp.
+A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the Abraham eagle flies: each answer adds altitude, and the eagle climbs a flight chart after every prompt. Fan-made, based on [Krillion](https://krillion.io) by kp.
 
-Everything is in one file, `index.html`. There is no build step and no server code.
+Everything is in one file, `index.html`. There is no build step and no server code. The eagle is an inline SVG drawn for this game; to use the official house logo instead, replace the `<symbol id="eagle">` near the top of `<body>`.
 
 ## Editing the questions
 
@@ -17,7 +17,7 @@ Mr Geyton / Geyton = 3
 
 - `#` starts a prompt.
 - Each answer goes on its own line: main spelling first, other spellings after `/`, then `=` and the tier.
-- Tiers: 1 Surface (10 pts), 2 Shallows (15), 3 Twilight (30), 4 Midnight (60), 5 Abyss (85), 6 Trench (100). One point is 10 m.
+- Tiers: 1 Perch (10 pts), 2 Treetops (15), 3 Clifftop (30), 4 Clouds (60), 5 Jet Stream (85), 6 Zenith (100). One point is 10 m of altitude, so a perfect flight reaches 10,000 m. Wrong or blank answers are "Grounded".
 - `= 0` marks a known wrong answer that is one typo away from a right one (e.g. `Iceland = 0` under EU countries), so it can't score.
 - If anything in the bank is malformed, the home screen shows a "Question bank needs fixing" box with line numbers.
 

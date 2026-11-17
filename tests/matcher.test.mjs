@@ -290,7 +290,7 @@ describe('dates and sharing', () => {
     assert.equal(Engine.londonDate(new Date('2026-07-01T23:30:00Z')), '2026-07-02', 'BST is UTC+1');
     assert.equal(Engine.formatDay('2026-11-17'), 'Tue 17 Nov 2026');
   });
-  test('share text has tiers and depth but no answers', () => {
+  test('share text has tiers and altitude but no answers', () => {
     const results = [
       { answer: 'Bakerloo', tier: 3, pts: 30 },
       { answer: 'Elizabeth', tier: 0, pts: 0 },
@@ -298,8 +298,9 @@ describe('dates and sharing', () => {
       { answer: 'Oganesson', tier: 6, pts: 100 },
     ];
     const text = Engine.shareText({ date: '2026-11-17', results, url: 'https://example.org/' });
-    assert.match(text, /1,300 m deep \(130\/400 pts\)/);
-    assert.match(text, /01 Twilight\n02 No match\n03 No answer\n04 Trench/);
+    assert.match(text, /^HIGH FLYER · Abraham House\nDaily Flight · Tue 17 Nov 2026\n/);
+    assert.match(text, /1,300 m high \(130\/400 pts\)/);
+    assert.match(text, /01 Clifftop\n02 Grounded\n03 Grounded\n04 Zenith/);
     assert.ok(!/Bakerloo|Oganesson/.test(text));
     assert.ok(text.endsWith('https://example.org/'));
   });
