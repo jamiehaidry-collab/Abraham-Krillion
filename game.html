@@ -1092,6 +1092,7 @@ const Scene = (() => {
   // Tiny 3x5 pixel font for the house sign and the altimeter.
   const GLYPHS = {
     A: ['.#.', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'], R: ['##.', '#.#', '##.', '#.#', '#.#'],
+    O: ['###', '#.#', '#.#', '#.#', '###'], U: ['#.#', '#.#', '#.#', '#.#', '###'], S: ['###', '#..', '###', '..#', '###'], E: ['###', '#..', '##.', '#..', '###'],
     H: ['#.#', '#.#', '###', '#.#', '#.#'], M: ['#.#', '###', '###', '#.#', '#.#'], m: ['...', '...', '##.', '###', '#.#'],
     0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'],
     3: ['###', '..#', '.##', '..#', '###'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '###', '..#', '###'],
@@ -1183,11 +1184,12 @@ const Scene = (() => {
     }
     fill(55, 12, 1, 7, STONE); fill(53, 11, 1, 1, '#8fb6ff');
     fill(40, 21, 32, 1, STONE);
-    fill(46, 23, 20, 8, STONE);
-    fill(47, 24, 18, 6, '#24365f');
-    fill(47, 24, 1, 2, '#8fb6ff'); fill(54, 24, 5, 6, '#ffd166'); fill(54, 27, 5, 3, '#f6a93b');
-    fill(53, 24, 1, 6, STONE); fill(59, 24, 1, 6, STONE);
-    fill(46, 31, 20, 1, STONE_D);
+    // House name plaque, in the house colours (black and white)
+    fill(41, 22, 30, 14, STONE);
+    fill(42, 23, 28, 12, '#17151f');
+    text(g, 'ABRAHAM', 56 - Math.ceil(textWidth('ABRAHAM') / 2), 24, '#f7f3ea');
+    text(g, 'HOUSE', 56 - Math.ceil(textWidth('HOUSE') / 2), 30, '#f7f3ea');
+    fill(41, 36, 30, 1, STONE_D);
     // Door with a pointed arch, and steps
     fill(50, 61, 11, 13, STONE);
     for (let y = 62; y < 72; y++) {
@@ -1595,14 +1597,14 @@ const Scene = (() => {
     const perched = eagle.perched && eagle.alt <= 0 && eagle.dur === 0;
     if (perched) { blit(S.perch, Math.round(FX() - S.perch.width / 2) + 1, ey); return; }
     const climbing = eagle.dur > 0;
-    if (!still) eagle.phase += (climbing ? 1.5 : 0.55) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
+    if (!still) eagle.phase += (climbing ? 0.9 : 0.35) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
     const amp = Math.min(W * 0.3, 42);
     const cx = still ? FX() : FX() + amp * Math.sin(eagle.phase);
     const right = still || Math.cos(eagle.phase) >= 0;
     const frames = right ? S.eagle : S.eagleL;
-    const fi = still ? 1 : Math.floor(t * (climbing ? 12 : 5)) % 4;
+    const fi = still ? 1 : Math.floor(t * (climbing ? 8 : 3.5)) % 4;
     const spr = frames[fi];
-    const bob = still ? 0 : Math.round(Math.sin(t * 2.4) * 1.5);
+    const bob = still ? 0 : Math.round(Math.sin(t * 1.6) * 1.5);
     blit(spr, cx - spr.width / 2, ey - spr.height / 2 + bob);
   }
 
@@ -1944,7 +1946,7 @@ const Scene = (() => {
     $('nextBtn').textContent = state.idx + 1 >= state.prompts.length ? 'See your flight' : 'Next prompt';
     show('reveal');
     place('revealSky', 0.62, 0.45);
-    if (animate) Scene.fly(before * 10, after * 10, 1800);
+    if (animate) Scene.fly(before * 10, after * 10, 2600);
     else { Scene.set(after * 10); Scene.snap(); }
     revealAt = Date.now();
     $('live').textContent = r.tier ? `${tierName(r.tier)}, tier ${r.tier}. The eagle climbs ${fmt(r.pts * 10)} metres.` : `${(r.timedOut ? 'Time’s up' : 'Passed')}. No height gained.`;
@@ -1986,7 +1988,7 @@ const Scene = (() => {
     setMaxAltitude();
     place('endSky', 0.55, 0.45);
     Scene.set(0); Scene.snap();
-    Scene.fly(0, pts * 10, 3200);   // replay the whole climb from the roof
+    Scene.fly(0, pts * 10, 4600);   // replay the whole climb from the roof
     updateCountdown();
   }
 
@@ -2105,7 +2107,7 @@ const Scene = (() => {
         rows[i].classList.add('in');
       }
     }
-    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 2600);
+    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 3600);
   }
   function startBoardPolling() {
     clearInterval(boardTimer);
