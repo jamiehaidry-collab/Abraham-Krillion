@@ -4,6 +4,12 @@ A daily rare-answer trivia game for Abraham House, Brighton College. Ten open pr
 
 Everything is in one file, `index.html`. There is no build step and no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
 
+## Screens
+
+- Phones: one column, with the scene showing through gaps between the panels.
+- iPad landscape and laptops: the scene fills the left of the screen and the game sits in a column on the right. A "Full screen" button appears where the browser supports it (laptops, iPad, Android; not iPhone).
+- iPad and iPhone: Share → Add to Home Screen opens it full screen like an app, with its own icon.
+
 ## Editing the questions
 
 Open `index.html` in any text editor. The question bank is the first big block of text in the file, between `<script type="text/plain" id="question-bank">` and `</script>`.

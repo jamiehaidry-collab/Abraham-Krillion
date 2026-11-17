@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14223a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Abrahamillion">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACyklEQVR42u3dvWsUQRjA4eyxuKeFphE/ClEREVTQQkkjsQkIErQPCIII9y9oY5UudUBEq/RKGkGEiAiixQWiICEGUYhJFy0ULdRakLe4Y72d2edpX7KXW37MwHB7V9zpb4zBv3TcAsSBOBAH4kAciANxIA5yV1adX+4CVg7EgTgQB+JAHIgDcSAO2qmsOr8ze0u9w9XAfzv/4YcmrByIA3EgDsSBOBAH4kActEfZTfAzpNcP7azpyrMTR4Lpp83oGwkefPxu5cC2gjjcAsSBOBAH4kAciIO0eMr+L/EZaLd/Jpj2wivf3/vCyoFtBXEgDhAH4kAciANx0DRJnpC+W3kVTE+cPl/T6y7sex5MZ7YuBNMU77OVA3EgDsSBOBAH4kAciIPsJfk9pLdvXAumx/bvrul11za/BtPqUXRuW42ld5+tHIgDcSAOxIE4EAfiQBxkr1h8v9rAf2t+eiKY1ncGOoz4/LS3+NLKgW0FcSAOEAfiQByIA3HQNBl+D+mpo+PB9M369kj+K0/ZY1tBHIgDxIE4EAfiQBw0UJJP2Q9jVOenKd5nKwfiQByIA3EgDsSBOBAH2fNb9v+Jz5BiW0EciAPEgTgQB+JAHDRQ2W3kyd3sk2fB9NbU5MBXjj9DWt8nTLtOSLGtIA7EAeJAHIgDcSAOmqd1T9kPc8oZ/xbT3NOl8K89ZY9tBXEgDhAH4kAciANx0DjF+tZyZm/pwK6DI3ndz982rBzYVhCHW4A4EAfiQByIA3GQlmJybioYj+/ZEUy3v/wc+IWHufLSubfB9Orq2WD68Hg/mF58fTKYPr65MPD7vXR3Jrn7bOVAHIgDcSAOxIE4EAfiIHvFlXuXg/GozuZcuQlXtnIgDsSBOBAH4kAciANxkL3SeaIrWzmwrSAOxIE4EAfiQByIg9Yq47HzxDZf2cqBOBAH4kAciANxIA7EQfb+ALPcn/spIlUEAAAAAElFTkSuQmCC">
 <meta name="color-scheme" content="light">
 <meta name="description" content="Abrahamillion: the daily flight. Ten prompts, one answer each. The rarer your right answer, the higher the eagle flies.">
 <title>Abrahamillion</title>
@@ -489,6 +494,28 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .foot{margin-top:20px;text-align:center}
 .foot p{display:inline-block;margin:3px;padding:7px 10px 6px;background:var(--panel);color:var(--text);font-size:16px;line-height:1.2;box-shadow:var(--o)}
 
+/* ---------- Full screen buttons ---------- */
+#stage{display:none}
+.chipbtn{appearance:none;-webkit-appearance:none;border:0;border-radius:0;margin:3px;padding:6px 9px 5px;background:var(--panel);color:var(--cyan);
+  font-family:var(--title);font-size:11px;line-height:1;text-transform:uppercase;cursor:pointer;box-shadow:var(--o)}
+.chipbtn:hover{color:var(--text)}
+@media (max-width:599px){.chip-bar .chipbtn{display:none !important}}
+
+/* ---------- Tablet portrait: a wider column ---------- */
+@media (min-width:700px){.app{max-width:600px}#homeSky{--h:clamp(300px,40vh,480px)}}
+
+/* ---------- iPad landscape and laptops: scene on the left, game on the right ---------- */
+@media (min-width:860px) and (min-aspect-ratio:5/4){
+  :root{--col:min(600px,46vw)}
+  .app{max-width:none;width:var(--col);margin:0 0 0 auto;padding-left:14px;padding-right:calc(env(safe-area-inset-right) + 26px)}
+  #stage{display:block;position:fixed;z-index:1;top:0;bottom:0;left:0;right:var(--col);pointer-events:none}
+  .sky{display:none !important}
+  .chip-bar .chipbtn{display:none !important}
+  .stage-fs{position:absolute;top:calc(env(safe-area-inset-top) + 15px);left:calc(env(safe-area-inset-left) + 16px);pointer-events:auto}
+  #stage .gain-pop{display:none;right:auto;left:57%;top:20%;font-size:44px}
+  body[data-screen="reveal"] #stage .gain-pop{display:block}
+}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
 }
@@ -498,6 +525,10 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 </head>
 <body>
 <canvas id="scene" aria-hidden="true"></canvas>
+<div id="stage">
+  <button id="fsBtn" class="chipbtn stage-fs" type="button" hidden>Full screen</button>
+  <span id="gainPop2" class="gain-pop" aria-hidden="true"></span>
+</div>
 <div class="app">
 <main>
 
@@ -505,6 +536,7 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
   <section id="screen-home" class="screen" aria-labelledby="homeTitle">
     <div class="chip-bar">
       <span class="tagchip">Daily flight</span>
+      <button id="fsBtn2" class="chipbtn" type="button" hidden>Full screen</button>
       <span class="tagchip" id="homeDate"></span>
     </div>
     <h1 id="homeTitle" class="title">Abrahamillion</h1>
@@ -1221,7 +1253,8 @@ const Scene = (() => {
 
   function resize() {
     const cw = window.innerWidth, ch = window.innerHeight;
-    PX = Math.max(2, Math.round(cw / 140));
+    // Pixel size from both dimensions, so wide screens show more woodland instead of zooming in.
+    PX = Math.max(2, Math.floor(Math.min(cw / 130, ch / (cw / ch >= 1.25 ? 220 : 260))));
     W = Math.ceil(cw / PX); H = Math.ceil(ch / PX);
     canvas.width = W; canvas.height = H;
     canvas.style.width = `${W * PX}px`; canvas.style.height = `${H * PX}px`;
@@ -1233,7 +1266,8 @@ const Scene = (() => {
   function computeAnchor() {
     if (!anchorEl) { anchorRow = null; return; }
     const r = anchorEl.getBoundingClientRect();
-    anchorRow = (r.top + window.scrollY + r.height * anchorFrac) / PX;
+    const fixed = getComputedStyle(anchorEl).position === 'fixed';
+    anchorRow = (r.top + (fixed ? 0 : window.scrollY) + r.height * anchorFrac) / PX;
   }
 
   function eagleY(now) {
@@ -1287,7 +1321,7 @@ const Scene = (() => {
       if (s.b > 0.93) { ctx.fillRect(x - 1, row, 3, 1); ctx.fillRect(x, row - 1, 1, 3); }
     }
     ctx.globalAlpha = 1;
-    blit(S.moon, W * 0.74, TOP * 0.93);
+    blit(S.moon, Math.min(W - 10, FX() + 34), TOP * 0.93);
     // Plane on the jet stream with a contrail
     {
       const wy = PERCH_Y + CLIMB * Math.sqrt(0.7), px = ((still ? 0.3 : (t * 6) / (W + 60)) % 1) * (W + 60) - 30;
@@ -1326,16 +1360,34 @@ const Scene = (() => {
 
   // ---------- Ground: woodland, Abraham House and lawn (pre-rendered once per width) ----------
   const G_TOP = 240, G_BOT = -150;      // world y range covered by the ground layers
-  let gBack = null, gRays = null, gFront = null, gW = 0;
+  let gBack = null, gRays = null, gFront = null, gKey = '';
+  let focusX = 0.5;                         // where the house sits across the screen (0-1)
+  const FX = () => Math.round(W * focusX);
   const fireflies = Array.from({ length: 22 }, (_, i) => ({ fx: (i * 0.137 + 0.05) % 1, y: 8 + ((i * 37) % 130), ph: i * 1.7 }));
   function buildGround() {
-    if (!S.house || gW === W) return;
-    gW = W;
+    if (!S.house || gKey === `${W}:${focusX}`) return;
+    gKey = `${W}:${focusX}`;
     const h = G_TOP - G_BOT, r = rng(311);
-    const layer = () => { const c = mk(W, h); return [c, c.getContext('2d')]; };
+    // Pixel buffers (much faster than one fillRect per pixel on wide screens)
+    const layer = () => ({ d: new Uint8ClampedArray(W * h * 4) });
+    const cache = new Map();
+    const paste = (L, src, x0, y0) => {
+      const sd = src.getContext('2d').getImageData(0, 0, src.width, src.height).data;
+      for (let y = 0; y < src.height; y++) for (let x = 0; x < src.width; x++) {
+        const i = (y * src.width + x) * 4, X = x0 + x, Y = y0 + y;
+        if (sd[i + 3] < 128 || X < 0 || Y < 0 || X >= W || Y >= h) continue;
+        const o = (Y * W + X) * 4; L.d[o] = sd[i]; L.d[o + 1] = sd[i + 1]; L.d[o + 2] = sd[i + 2]; L.d[o + 3] = 255;
+      }
+    };
+    const toCanvas = (L) => { const c = mk(W, h); c.getContext('2d').putImageData(new ImageData(L.d, W, h), 0, 0); return c; };
     const row = (wy) => Math.round(G_TOP - wy);
-    const [back, b] = layer(), [rays, rg] = layer(), [front, f] = layer();
-    const dot = (g, x, y, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    const back = layer(), rays = layer(), front = layer(), b = back, rg = rays, f = front;
+    const dot = (L, x, y, col) => {
+      x = Math.round(x); y = Math.round(y);
+      if (x < 0 || y < 0 || x >= W || y >= h) return;
+      let c = cache.get(col); if (!c) { c = hex(col); cache.set(col, c); }
+      const o = (y * W + x) * 4; L.d[o] = c[0]; L.d[o + 1] = c[1]; L.d[o + 2] = c[2]; L.d[o + 3] = 255;
+    };
     // Leafy canopy, lit from the top left, with a ragged edge
     const blob = (g, cx, cy, rad, cols, seed) => {
       const rr = rng(seed);
@@ -1345,7 +1397,7 @@ const Scene = (() => {
         dot(g, cx + x, cy + y, v > 0.5 ? cols[3] : v > 0.08 ? cols[2] : v > -0.4 ? cols[1] : cols[0]);
       }
     };
-    const hx = Math.round(W / 2 - S.house.width / 2);
+    const fx = FX(), hx = Math.round(fx - S.house.width / 2);
     // Distant downs and a soft tree line (atmospheric, bluish greens)
     for (let x = 0; x < W; x++) {
       const top = 30 + Math.round(7 * Math.sin(x / 21) + 3 * Math.sin(x / 8 + 1));
@@ -1357,6 +1409,13 @@ const Scene = (() => {
       for (let wy = 0; wy < y - rad / 2; wy++) { dot(b, x - 1, row(wy), '#5a3a26'); dot(b, x, row(wy), '#6e4a30'); dot(b, x + 1, row(wy), '#4a2e1e'); }
       blob(b, x, row(y), rad, ['#285f43', '#367d4d', '#4c9c57', '#79c561'], 2000 + x);
     }
+    // More woodland across wide screens
+    for (let x = 12; x < W; x += 30) {
+      if (Math.abs(x - fx) < S.house.width / 2 + 16) continue;
+      const tx = Math.round(x + r() * 10), y = 52 + r() * 30, rad = Math.round(12 + r() * 9);
+      for (let wy = 0; wy < y - rad / 2; wy++) { dot(b, tx - 1, row(wy), '#5a3a26'); dot(b, tx, row(wy), '#6e4a30'); dot(b, tx + 1, row(wy), '#4a2e1e'); }
+      blob(b, tx, row(y), rad, ['#285f43', '#367d4d', '#4c9c57', '#79c561'], 3000 + x);
+    }
     // Shafts of sunlight (dithered), drawn translucent each frame
     for (let k = 0; k < 4; k++) {
       const x0 = W * (0.05 + k * 0.27), wdt = 6 + (k % 2) * 5;
@@ -1366,7 +1425,7 @@ const Scene = (() => {
       }
     }
     // Abraham House
-    f.drawImage(S.house, hx - 1, row(0) - S.house.height + 1);
+    paste(f, S.house, hx - 1, row(0) - S.house.height + 1);
     // Lawn with texture, the path to the door, tufts and wild flowers
     for (let wy = 0; wy >= G_BOT; wy--) for (let x = 0; x < W; x++) {
       const v = r();
@@ -1374,11 +1433,11 @@ const Scene = (() => {
     }
     for (let wy = 0; wy >= G_BOT; wy--) {
       const half = 6 + Math.floor(-wy / 3);
-      for (let x = Math.round(W / 2) - half; x < Math.round(W / 2) + half; x++) dot(f, x, row(wy), r() < 0.82 ? '#ead9ad' : '#cfba8c');
+      for (let x = fx - half; x < fx + half; x++) dot(f, x, row(wy), r() < 0.82 ? '#ead9ad' : '#cfba8c');
     }
     for (let i = 0; i < W * 1.4; i++) {
       const x = Math.floor(r() * W), wy = -Math.floor(r() * 140);
-      if (Math.abs(x - W / 2) < 8 + -wy / 3) continue;
+      if (Math.abs(x - fx) < 8 + -wy / 3) continue;
       dot(f, x, row(wy) - 1, '#79c95b'); dot(f, x, row(wy) - 2, '#a2e274');
       if (r() < 0.35) dot(f, x + 1, row(wy) - 3, ['#ff8fb1', '#fff2c9', '#8fd3ff', '#ffd166', '#c9a7ff'][Math.floor(r() * 5)]);
     }
@@ -1394,7 +1453,8 @@ const Scene = (() => {
         }
       }
     };
-    for (const [x, wy, dir, len] of [[2, -40, 1, 26], [0, -70, 1, 30], [8, -105, 1, 24], [W - 3, -45, -1, 26], [W - 1, -78, -1, 30], [W - 9, -110, -1, 22]]) fern(x, wy, dir, len);
+    for (const [x, wy, dir, len] of [[2, -40, 1, 26], [0, -70, 1, 30], [8, -105, 1, 24], [W - 3, -45, -1, 26], [W - 1, -78, -1, 30], [W - 9, -110, -1, 22],
+      [hx - 18, -60, 1, 20], [hx + S.house.width + 18, -64, -1, 20]]) fern(x, wy, dir, len);
     // Foreground trunks and canopy framing the scene
     const trunk = (x0, wdt, seed) => {
       const rr = rng(seed);
@@ -1408,7 +1468,7 @@ const Scene = (() => {
     blob(f, 2, row(142), 27, dark, 31); blob(f, W - 2, row(148), 27, dark, 32);
     blob(f, 20, row(166), 17, dark, 33); blob(f, W - 21, row(170), 17, dark, 34);
     blob(f, -2, row(108), 15, dark, 35); blob(f, W + 2, row(112), 15, dark, 36);
-    gBack = back; gRays = rays; gFront = front;
+    gBack = toCanvas(back); gRays = toCanvas(rays); gFront = toCanvas(front);
   }
 
   function drawGround(t, still) {
@@ -1421,7 +1481,7 @@ const Scene = (() => {
     ctx.globalAlpha = 1;
     ctx.drawImage(gFront, 0, y);
     // The family standing outside the front door
-    const cx = Math.round(W / 2), feet = -3;
+    const cx = FX(), feet = -3;
     blit(S.dog[still ? 0 : Math.floor(t * 5) % 2], cx - 31, feet - 1);
     blit(S.kid[still ? 0 : (Math.floor(t / 1.6) % 3 === 0 ? 1 : 0)], cx - 20, feet);
     blit(S.dad, cx - 14, feet);
@@ -1441,11 +1501,11 @@ const Scene = (() => {
 
   function drawEagle(t, ey, still) {
     const perched = eagle.perched && eagle.alt <= 0 && eagle.dur === 0;
-    if (perched) { blit(S.perch, Math.round(W / 2 - S.perch.width / 2) + 1, ey); return; }
+    if (perched) { blit(S.perch, Math.round(FX() - S.perch.width / 2) + 1, ey); return; }
     const climbing = eagle.dur > 0;
     if (!still) eagle.phase += (climbing ? 1.5 : 0.55) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
     const amp = Math.min(W * 0.3, 42);
-    const cx = still ? W / 2 : W / 2 + amp * Math.sin(eagle.phase);
+    const cx = still ? FX() : FX() + amp * Math.sin(eagle.phase);
     const right = still || Math.cos(eagle.phase) >= 0;
     const frames = right ? S.eagle : S.eagleL;
     const fi = still ? 1 : Math.floor(t * (climbing ? 12 : 5)) % 4;
@@ -1474,6 +1534,8 @@ const Scene = (() => {
     // Put the eagle at the vertical middle of an element (in viewport coordinates).
     anchor(el, frac = 0.5) { anchorEl = el || null; anchorFrac = frac; computeAnchor(); },
     setMax(m) { maxAlt = Math.max(1, m); },
+    // Centre the house, family and eagle at this fraction of the screen width.
+    focus(fr) { if (fr !== focusX) { focusX = fr; buildGround(); } },
     set(alt) { eagle.alt = eagle.to = eagle.from = alt; eagle.dur = 0; eagle.perched = alt <= 0; },
     fly(from, to, ms) {
       eagle.from = from; eagle.to = to; eagle.alt = from;
@@ -1541,6 +1603,35 @@ const Scene = (() => {
   }
 
   // ----- Helpers -----
+  // Where the scene shows: a gap in the column on phones, the left-hand stage on wide screens.
+  const wideMQ = window.matchMedia ? window.matchMedia('(min-width: 860px) and (min-aspect-ratio: 5/4)') : { matches: false };
+  let placed = null;
+  function place(id, frac, wideFrac = 0.44) {
+    placed = [id, frac, wideFrac];
+    if (wideMQ.matches) {
+      const st = $('stage'), r = st.getBoundingClientRect();
+      Scene.focus(Math.round(((r.left + r.width / 2) / window.innerWidth) * 50) / 50);
+      Scene.anchor(st, wideFrac);
+    } else {
+      Scene.focus(0.5);
+      Scene.anchor($(id), frac);
+    }
+  }
+  let placeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(placeTimer); placeTimer = setTimeout(() => { if (placed) place(...placed); }, 120); });
+
+  // Full screen (laptops, iPad, Android). iPhone Safari has no full-screen API, so the buttons stay hidden there.
+  const root = document.documentElement;
+  const canFS = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+  const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function syncFS() { ['fsBtn', 'fsBtn2'].forEach((id) => { const b = $(id); b.hidden = !canFS; b.textContent = isFS() ? 'Exit full screen' : 'Full screen'; }); }
+  function toggleFS() {
+    try {
+      const res = isFS() ? (document.exitFullscreen || document.webkitExitFullscreen).call(document) : (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+      if (res && res.catch) res.catch(() => {});
+    } catch (e) { /* not allowed */ }
+  }
+
   const SCREENS = ['home', 'play', 'reveal', 'end'];
   function show(name) {
     SCREENS.forEach((s) => { $('screen-' + s).hidden = s !== name; });
@@ -1593,7 +1684,7 @@ const Scene = (() => {
     setMaxAltitude();
     const done = !!(state && state.phase === 'done');
     Scene.set(done ? totalPts() * 10 : 0);
-    Scene.anchor($('homeSky'), done ? 0.5 : 0.16);
+    place('homeSky', done ? 0.5 : 0.16, done ? 0.45 : 0.4);
     Scene.snap();
   }
 
@@ -1631,7 +1722,7 @@ const Scene = (() => {
     syncLockButton();
     show('play');
     Scene.set(totalPts() * 10);
-    Scene.anchor($('playSky'), 0.34);
+    place('playSky', 0.34, 0.4);
     announced = false;
     startTimer();
     if (focus && state.phase === 'prompt') input.focus({ preventScroll: true });
@@ -1722,13 +1813,14 @@ const Scene = (() => {
     $('vNote').textContent = note;
     renderLadder(r.tier, animate);
     $('groups').innerHTML = renderGroups(p, r);
-    const pop = $('gainPop');
-    pop.innerHTML = `+${metresHTML(r.pts)}`;
-    pop.style.setProperty('--c', colour);
-    pop.style.animation = 'none'; void pop.offsetWidth; pop.style.animation = '';
+    for (const pop of [$('gainPop'), $('gainPop2')]) {
+      pop.innerHTML = `+${metresHTML(r.pts)}`;
+      pop.style.setProperty('--c', colour);
+      pop.style.animation = 'none'; void pop.offsetWidth; pop.style.animation = '';
+    }
     $('nextBtn').textContent = state.idx + 1 >= state.prompts.length ? 'See your flight' : 'Next prompt';
     show('reveal');
-    Scene.anchor($('revealSky'), 0.62);
+    place('revealSky', 0.62, 0.45);
     if (animate) Scene.fly(before * 10, after * 10, 1800);
     else { Scene.set(after * 10); Scene.snap(); }
     revealAt = Date.now();
@@ -1767,7 +1859,7 @@ const Scene = (() => {
     $('copyFallback').hidden = true;
     show('end');
     setMaxAltitude();
-    Scene.anchor($('endSky'), 0.55);
+    place('endSky', 0.55, 0.45);
     Scene.set(0); Scene.snap();
     Scene.fly(0, pts * 10, 3200);   // replay the whole climb from the roof
     updateCountdown();
@@ -1836,6 +1928,11 @@ const Scene = (() => {
   $('resultsBtn').addEventListener('click', () => { if (state && state.phase === 'done') renderEnd(); });
   $('homeBtn').addEventListener('click', showHome);
   $('copyBtn').addEventListener('click', copyResult);
+  $('fsBtn').addEventListener('click', toggleFS);
+  $('fsBtn2').addEventListener('click', toggleFS);
+  document.addEventListener('fullscreenchange', syncFS);
+  document.addEventListener('webkitfullscreenchange', syncFS);
+  syncFS();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) return;
     if (state && state.phase === 'prompt') tickTimer();
