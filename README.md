@@ -43,15 +43,15 @@ This needs Node 18 or later and nothing else. It checks the answer matching (inc
 
 ## Hosting
 
-Netlify, linked to this private repository. `netlify.toml` tells Netlify what to do: it runs `tools/build.mjs`, which encrypts `game.html` with the house password into `dist/index.html`, and publishes that. The repository stays private, and the password is never stored in it.
+GitHub Pages, from this private repository. The workflow in `.github/workflows/pages.yml` runs on every push: it checks the questions with the tests, runs `tools/build.mjs` to encrypt `game.html` with the house password into `dist/index.html`, and publishes that. The repository stays private and the password is never stored in it.
 
-1. Sign up at app.netlify.com with GitHub.
-2. Add a new site (project) → Import an existing project → GitHub, and allow access to this repository only.
-3. Pick this repository and the branch to deploy. Netlify reads the build settings from `netlify.toml`.
-4. Add an environment variable named `SITE_PASSWORD` with the house password (8+ characters; three random words work well). Without it the build stops on purpose rather than publish an unlocked game.
-5. Deploy, then change the site name to get a tidy link.
+Pages from a private repository needs GitHub Pro (free for students through the GitHub Student Developer Pack). Then, once:
 
-Every push updates the site. Players enter the password once per device ("Remember on this device"); they stay signed in through updates. To change the password, edit `SITE_PASSWORD` and redeploy: everyone is asked for the new one.
+1. Settings → Secrets and variables → Actions → New repository secret: name `SITE_PASSWORD`, value the house password (8+ characters; three random words work well).
+2. Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+3. Actions → Publish game → Run workflow (or push any change).
+
+The link appears in Settings → Pages and on the finished workflow run. Players enter the password once per device ("Remember on this device") and stay signed in through updates. To change the password, update the secret and re-run the workflow: everyone is asked for the new one. If the question bank has a mistake, the tests fail and the live game is left as it was until it's fixed.
 
 To build the locked page yourself: `SITE_PASSWORD='your password' node tools/build.mjs`.
 

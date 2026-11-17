@@ -3,8 +3,8 @@
 //
 //   SITE_PASSWORD='your house password' node tools/build.mjs
 //
-// On Netlify this runs automatically (see netlify.toml); set SITE_PASSWORD under
-// Site configuration > Environment variables. The password is never stored in the repository.
+// On GitHub this runs automatically (.github/workflows/pages.yml) using the repository secret
+// SITE_PASSWORD. The password is never stored in the repository.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +52,7 @@ async function main() {
   const password = process.env.SITE_PASSWORD || '';
   if (password.length < 8) {
     console.error('Build stopped: set SITE_PASSWORD (at least 8 characters) so the game is locked.\n' +
-      'On Netlify: Site configuration > Environment variables > Add a variable named SITE_PASSWORD, then redeploy.');
+      'On GitHub: Settings > Secrets and variables > Actions > New repository secret named SITE_PASSWORD, then re-run the workflow.');
     process.exit(1);
   }
   const game = readFileSync(path.join(ROOT, 'game.html'), 'utf8');
