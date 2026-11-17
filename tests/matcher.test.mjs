@@ -298,7 +298,7 @@ describe('dates and sharing', () => {
       { answer: 'Oganesson', tier: 6, pts: 100 },
     ];
     const text = Engine.shareText({ date: '2026-11-17', results, url: 'https://example.org/' });
-    assert.match(text, /^ABRAHAMILLION · Abraham House\nDaily Flight · Tue 17 Nov 2026\n/);
+    assert.match(text, /^ABRAHAMILLION\nDaily Flight · Tue 17 Nov 2026\n/);
     assert.match(text, /1,300 m high \(130\/400 pts\)/);
     assert.match(text, /01 Clifftop\n02 Grounded\n03 Grounded\n04 Zenith/);
     assert.ok(!/Bakerloo|Oganesson/.test(text));
