@@ -1094,6 +1094,7 @@ const Scene = (() => {
     A: ['.#.', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'], R: ['##.', '#.#', '##.', '#.#', '#.#'],
     O: ['###', '#.#', '#.#', '#.#', '###'], U: ['#.#', '#.#', '#.#', '#.#', '###'], S: ['###', '#..', '###', '..#', '###'], E: ['###', '#..', '##.', '#..', '###'],
     H: ['#.#', '#.#', '###', '#.#', '#.#'], M: ['#.#', '###', '###', '#.#', '#.#'], m: ['...', '...', '##.', '###', '#.#'],
+    G: ['###', '#..', '#.#', '#.#', '###'], '!': ['#', '#', '#', '.', '#'],
     0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'],
     3: ['###', '..#', '.##', '..#', '###'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '###', '..#', '###'],
     6: ['###', '#..', '###', '#.#', '###'], 7: ['###', '..#', '..#', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'],
@@ -1293,6 +1294,99 @@ const Scene = (() => {
     S.gull = [sprite(['w...w', '.w.w.', '..k..'], GP), sprite(['.....', 'ww.ww', '..k..'], GP)];
     S.plane = sprite(['......kk.....', 'kwwwwwwwwwwk.', '.kwwkwkwkwwwk', '....kkk......'], { k: '#5a6278', w: '#f2f4fb' });
     S.moon = sprite(['..ccc..', '.cccc..', 'ccc....', 'ccc....', 'ccc....', '.cccc..', '..ccc..'], { c: '#fff2c4' }, '#e6c86e');
+
+    // ---------- Things to fly past: sky traffic and space ----------
+    const paint = (w, h, fn, outline) => {
+      const c = mk(w, h), g = c.getContext('2d');
+      fn((x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); }, (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x, y, ww, hh); });
+      return outline ? outlined(c, outline) : c;
+    };
+    const DARK = '#1a2036';
+    S.balloon = paint(13, 20, (px, rect) => {
+      const stripes = ['#ff6b86', '#ffd166', '#4db6ff', '#fffaf0'];
+      for (let y = 0; y < 13; y++) for (let x = 0; x < 13; x++) {
+        const dx = x - 6, dy = y - 6;
+        if (!(dy <= 0 ? dx * dx + dy * dy <= 38 : Math.abs(dx) <= 6.4 - dy * 0.8)) continue;
+        px(x, y, dx >= 4 ? '#c9566e' : stripes[Math.floor((x + 1) / 3) % 4]);
+      }
+      rect(4, 13, 1, 3, '#8a5a2b'); rect(8, 13, 1, 3, '#8a5a2b');
+      rect(4, 16, 5, 3, '#a97440'); rect(4, 16, 5, 1, '#c99a5e');
+    }, DARK);
+    S.goose = [sprite(['k...k', '.kwk.', '..k..'], { k: '#3b4458', w: '#e8edf5' }), sprite(['.....', 'kkwkk', '..k..'], { k: '#3b4458', w: '#e8edf5' })];
+    S.bplane = sprite(['....rr......', 'r..rrrrrrw..', 'rrrrrrrrrrrp', 'r..rrrrrr..p', '....rr......'], { r: '#e8504f', w: '#9fe4ff', p: '#c9cfdb' }, DARK);
+    S.sat = paint(17, 9, (px, rect) => {
+      rect(0, 3, 5, 3, '#2f5fb3'); rect(12, 3, 5, 3, '#2f5fb3');
+      for (const x of [1, 3, 13, 15]) rect(x, 3, 1, 3, '#7aa2e8');
+      rect(5, 4, 2, 1, '#9aa3b5'); rect(10, 4, 2, 1, '#9aa3b5');
+      rect(7, 2, 3, 5, '#e8b23a'); rect(9, 2, 1, 5, '#b0801c');
+      rect(8, 0, 1, 2, '#c9cfdb'); px(8, 0, '#ffffff');
+    }, DARK);
+    S.station = paint(41, 17, (px, rect) => {
+      const panel = (x, y) => { rect(x, y, 7, 5, '#2b58ad'); for (let i = 1; i < 7; i += 2) rect(x + i, y, 1, 5, '#5c88d6'); rect(x, y + 2, 7, 1, '#5c88d6'); };
+      for (const x of [0, 9, 25, 34]) { panel(x, 0); panel(x, 12); rect(x + 3, 5, 1, 7, '#9aa3b5'); }
+      rect(0, 7, 41, 1, '#8a94a8'); rect(0, 8, 41, 1, '#c9cfdb');
+      rect(16, 5, 9, 5, '#eef2f8'); rect(16, 9, 9, 1, '#c3cad8');
+      rect(19, 2, 3, 3, '#eef2f8'); rect(18, 10, 5, 3, '#dfe4ee');
+      rect(17, 6, 1, 1, '#4d7cff'); rect(23, 6, 1, 1, '#4d7cff'); rect(20, 6, 1, 1, '#4d7cff');
+    }, '#161a2c');
+    S.astro = sprite(['...www...', '..wwwww..', '..wvvvg..', '..wvyvg..', '..wwwwg..', '.wwwwwwg.', 'ww.wrw.gg', 'w..www..g', '...wwg...', '..ww.wg..', '..w...g..', '.ww...gg.'],
+      { w: '#f2f4f8', g: '#c3c9d6', v: '#f2c14e', y: '#fff3b0', r: '#ff6b86' }, DARK);
+    const RP = { w: '#f2f4f8', g: '#c3c9d6', r: '#ff5f6b', b: '#4db6ff', o: '#ff9f43', y: '#ffe08a' };
+    const body = ['...r...', '..rwr..', '..wwg..', '.wwwwg.', '.wwbwg.', '.wwbwg.', '.wwwwg.', '.wwwwg.', '.wrwrg.', '.wwwwg.', 'rwwwwgr', 'rr.g.rr'];
+    S.rocket = [sprite([...body, '..oyo..', '..oyo..', '...o...'], RP, DARK), sprite([...body, '..oyo..', '...y...', '...o...'], RP, DARK)];
+    const UP = { g: '#9df0ff', a: '#6be06b', G: '#1f6f2f', s: '#c9cfdb', y: '#ffe08a', x: '#7d8494' };
+    S.ufo = [['....ggg....', '...gaGag...', '..sssssss..', '.sysxsysxs.', 'sssssssssss', '..s.....s..'],
+      ['....ggg....', '...gaGag...', '..sssssss..', '.sxsysxsys.', 'sssssssssss', '..s.....s..']].map((f) => sprite(f, UP, DARK));
+    S.bigmoon = paint(17, 17, (px) => {
+      const craters = [[5, 5, 2], [11, 9, 2.6], [6, 12, 1.5], [12, 4, 1.2]];
+      for (let y = 0; y < 17; y++) for (let x = 0; x < 17; x++) {
+        const dx = x - 8, dy = y - 8;
+        if (dx * dx + dy * dy > 64) continue;
+        const dark = dx + dy > 6, crater = craters.some(([cx, cy, r]) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r);
+        px(x, y, crater ? (dark ? '#cdbd7c' : '#eadca0') : (dark ? '#e2d28e' : '#fff2c4'));
+      }
+    });
+    const planet = (r, bands, shade, extra) => paint(r * 2 + 1, r * 2 + 1, (px) => {
+      for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
+        if (x * x + y * y > r * r) continue;
+        let col = bands[Math.min(bands.length - 1, Math.floor(((y + r) / (2 * r + 1)) * bands.length))];
+        if (x * 0.7 + y * 0.7 > r * 0.45) col = shade;
+        px(x + r, y + r, (extra && extra(x, y)) || col);
+      }
+    });
+    S.mars = planet(7, ['#e07a52', '#d0603c', '#d86a45', '#c4553a'], '#8a3a26', (x, y) => (y < -5 ? '#fff4ee' : null));
+    S.neptune = planet(9, ['#7ac8f0', '#5fb0e6', '#4f9fd9', '#6bbbe9', '#4a92cc'], '#2c5f99');
+    S.ringed = (() => {
+      const r = 15, rx = 27, ry = 6, w = rx * 2 + 3, h = r * 2 + 3, cx = Math.floor(w / 2), cy = Math.floor(h / 2);
+      const c = mk(w, h), g = c.getContext('2d');
+      const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
+      const ring = (front) => {
+        for (let y = -ry - 1; y <= ry + 1; y++) for (let x = -rx - 1; x <= rx + 1; x++) {
+          const d = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+          if (d < 0.6 || d > 1 || front !== (y >= 0)) continue;
+          px(cx + x, cy + y, d > 0.85 ? '#cbb68c' : '#efe0bc');
+        }
+      };
+      ring(false);
+      const bands = ['#f3d9a4', '#e8bf7e', '#f0cf94', '#d9a868', '#ecc68a', '#e2b676'];
+      for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
+        if (x * x + y * y > r * r) continue;
+        px(cx + x, cy + y, x * 0.75 + y * 0.66 > r * 0.5 ? '#a8743e' : bands[Math.min(5, Math.floor(((y + r) / (2 * r + 1)) * 6))]);
+      }
+      ring(true);
+      return c;
+    })();
+    S.nebula = [['#7a4fc0', '#c25fb0'], ['#3f6fd0', '#7a4fc0']].map(([a, b], k) => {
+      const rr = rng(700 + k), w = 110, h = 60, c = mk(w, h), g = c.getContext('2d');
+      const blobs = Array.from({ length: 7 }, () => [10 + rr() * (w - 20), 10 + rr() * (h - 20), 8 + rr() * 16]);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        let v = 0;
+        for (const [bx, by, br] of blobs) v += Math.max(0, 1 - Math.hypot(x - bx, (y - by) * 1.6) / br);
+        if (v <= 0.15 || v * 0.9 < BAYER[(y & 3) * 4 + (x & 3)]) continue;
+        g.fillStyle = v > 0.8 ? b : a; g.fillRect(x, y, 1, 1);
+      }
+      return c;
+    });
     // Clouds: puffs built from circles, white with a lavender underside.
     S.clouds = [0, 1, 2, 3].map((k) => {
       const rr = rng(40 + k), w = 26 + k * 8, h = 12 + (k % 2) * 3, c = mk(w, h), g = c.getContext('2d');
@@ -1334,7 +1428,7 @@ const Scene = (() => {
 
   // Scenery positions (x as a fraction of width so they survive resizes).
   const R = rng(99);
-  const clouds = Array.from({ length: 34 }, (_, i) => ({ fx: R(), y: 160 + i * (CLIMB * 0.62 / 34) + R() * 40, k: i % 4, v: 0.5 + R() * 1.4 }));
+  const clouds = Array.from({ length: 30 }, (_, i) => ({ fx: R(), y: 160 + i * (CLIMB * 0.5 / 30) + R() * 40, k: i % 4, v: 0.5 + R() * 1.4 }));
   const stars = Array.from({ length: 520 }, () => ({ fx: R(), y: TOP * 0.42 + R() * (TOP * 0.9), b: R(), tw: R() * 6.28 }));
   const gulls = Array.from({ length: 4 }, (_, i) => ({ fx: R(), y: 95 + i * 34 + R() * 20, v: 4 + R() * 6, ph: R() * 6 }));
   const TICKS = [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
@@ -1394,6 +1488,76 @@ const Scene = (() => {
   const sy = (wy) => Math.round(H - (wy - cam)); // world y -> screen row
   function blit(spr, x, wyBottom) { ctx.drawImage(spr, Math.round(x), sy(wyBottom) - spr.height); }
 
+  // ---------- Sky traffic and space, placed by altitude ----------
+  const atF = (f) => altToY(maxAlt * f);
+  // Far-away things move slower than the camera (parallax), so they hang in view for longer.
+  const syP = (wy, k) => Math.round(H / 2 - (wy - (cam + H / 2)) * k);
+  function blitP(spr, cx, wy, k) {
+    const row = syP(wy, k);
+    if (row < -spr.height || row > H + spr.height) return;
+    ctx.drawImage(spr, Math.round(cx - spr.width / 2), Math.round(row - spr.height / 2));
+  }
+  const drift = (base, speed, t, width) => { const span = W + width * 2; return ((((base * span) + t * speed) % span) + span) % span - width; };
+  function drawSpace(t, still, drawStars) {
+    const fx = FX();
+    ctx.globalAlpha = 0.5;
+    blitP(S.nebula[0], fx - 20, atF(0.62), 0.35);
+    blitP(S.nebula[1], fx + 14, atF(0.9), 0.35);
+    ctx.globalAlpha = 1;
+    drawStars();
+    ctx.globalAlpha = 1;
+    blitP(S.mars, Math.min(W - 9, fx + 38), atF(0.7), 0.5);
+    blitP(S.neptune, Math.max(11, fx - 44), atF(0.8), 0.45);
+    blitP(S.ringed, fx + 18, atF(0.88), 0.4);
+    blitP(S.bigmoon, Math.max(10, fx - 34), atF(0.97), 0.55);
+    // Shooting stars once the sky is dark
+    if (!still && cam + H > atF(0.45)) {
+      const seg = Math.floor(t / 4), ph = t - seg * 4;
+      const rr = rng(seg * 7919 + 13);
+      if (ph < 0.7 && rr() < 0.75) {
+        const x0 = rr() * W * 0.8, y0 = rr() * H * 0.6, len = 10 + Math.floor(rr() * 8), p = ph / 0.7;
+        ctx.fillStyle = '#fffaf0';
+        for (let i = 0; i < len; i++) {
+          ctx.globalAlpha = (1 - i / len) * (1 - p);
+          ctx.fillRect(Math.round(x0 + p * 40 - i), Math.round(y0 + p * 20 - i * 0.5), 1, 1);
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+    blit(S.sat, still ? fx - 30 : drift(0.2, 3, t, 20), atF(0.58));
+    const stX = still ? fx - 20 : drift(0.6, 1.5, t, 50), stY = atF(0.76);
+    blit(S.station, stX, stY);
+    if (!still && Math.floor(t * 1.5) % 2) { ctx.fillStyle = '#ff5f6b'; ctx.fillRect(Math.round(stX) + 21, sy(stY) - S.station.height + 3, 1, 1); }
+    blit(S.astro, stX + 46, stY + 6 + (still ? 0 : Math.round(Math.sin(t * 0.8) * 2)));
+    const rkSpan = CLIMB * 0.16;
+    blit(S.rocket[still ? 0 : Math.floor(t * 8) % 2], Math.min(W - 12, fx + 50), atF(0.82) + (still ? rkSpan / 2 : (t * 8) % rkSpan));
+    blit(S.ufo[still ? 0 : Math.floor(t * 2) % 2], fx - 6 + (still ? 0 : Math.sin(t * 0.4) * 30), atF(1.03));
+  }
+  function drawSkyTraffic(t, still) {
+    const fx = FX();
+    blit(S.balloon, still ? fx - 40 : drift(0.1, 1.2, t, 14), atF(0.1) + (still ? 0 : Math.round(Math.sin(t * 0.6) * 2)));
+    const gx = still ? fx : drift(0.4, 5, t, 30), gy = atF(0.2), fr = still ? 0 : Math.floor(t * 3) % 2;
+    for (const [dx, dy] of [[0, 0], [-6, -3], [-12, -6], [-6, 3], [-12, 6]]) blit(S.goose[fr], gx + dx, gy + dy);
+    // A little plane towing a banner for the house
+    const label = 'GO ABRAHAM!', bw = textWidth(label) + 6, wy = atF(0.28);
+    const px = still ? fx + 30 : drift(0.7, 4, t, bw + 24), row = sy(wy);
+    if (row > -12 && row < H + 12) {
+      const bx = Math.round(px - 6 - bw), by = row - 9;
+      ctx.fillStyle = '#d7dbe6'; ctx.fillRect(bx + bw, by + 3, 6, 1);
+      ctx.fillStyle = '#1a2036'; ctx.fillRect(bx - 1, by - 1, bw + 2, 9);
+      ctx.fillStyle = '#fffaf0'; ctx.fillRect(bx, by, bw, 7);
+      text(ctx, label, bx + 3, by + 1, '#17151f');
+      blit(S.bplane, px, wy);
+    }
+    // Airliner at cruising height, with a contrail
+    const jy = atF(0.38), jx = (still ? 0.3 : ((t * 6) / (W + 60)) % 1) * (W + 60) - 30, jr = sy(jy);
+    if (jr > -10 && jr < H + 10) {
+      ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(Math.round(jx - 40), jr - 3, 40, 1);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(Math.round(jx - 70), jr - 3, 30, 1);
+      blit(S.plane, jx, jy);
+    }
+  }
+
   function draw(now) {
     const t = now / 1000;
     const still = reduced();
@@ -1404,7 +1568,7 @@ const Scene = (() => {
     else cam += (want - cam) * (1 - Math.exp(-(now - last) / 80));
     drawSky();
 
-    // Stars and moon
+    drawSpace(t, still, () => {
     for (const s of stars) {
       const row = sy(s.y); if (row < 0 || row >= H) continue;
       const f = (s.y / TOP - 0.42) / 0.25; if (f <= 0) continue;
@@ -1415,18 +1579,8 @@ const Scene = (() => {
       ctx.fillRect(x, row, 1, 1);
       if (s.b > 0.93) { ctx.fillRect(x - 1, row, 3, 1); ctx.fillRect(x, row - 1, 1, 3); }
     }
-    ctx.globalAlpha = 1;
-    blit(S.moon, Math.min(W - 10, FX() + 34), TOP * 0.93);
-    // Plane on the jet stream with a contrail
-    {
-      const wy = altToY(maxAlt * 0.7), px = ((still ? 0.3 : (t * 6) / (W + 60)) % 1) * (W + 60) - 30;
-      const row = sy(wy);
-      if (row > -10 && row < H + 10) {
-        ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(Math.round(px - 40), row - 3, 40, 1);
-        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(Math.round(px - 70), row - 3, 30, 1);
-        blit(S.plane, px, wy);
-      }
-    }
+    });
+    drawSkyTraffic(t, still);
     // Clouds drift slowly
     for (const c of clouds) {
       const spr = S.clouds[c.k], span = W + spr.width;
@@ -1598,14 +1752,14 @@ const Scene = (() => {
     const perched = eagle.perched && eagle.alt <= 0 && eagle.dur === 0;
     if (perched) { blit(S.perch, Math.round(FX() - S.perch.width / 2) + 1, ey); return; }
     const climbing = eagle.dur > 0;
-    if (!still) eagle.phase += (climbing ? 0.55 : 0.22) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
+    if (!still) eagle.phase += (climbing ? 0.4 : 0.15) * Math.min(0.05, (performance.now() - last) / 1000 || 0.016);
     const amp = Math.min(W * 0.3, 42);
     const cx = still ? FX() : FX() + amp * Math.sin(eagle.phase);
     const right = still || Math.cos(eagle.phase) >= 0;
     const frames = right ? S.eagle : S.eagleL;
-    const fi = still ? 1 : Math.floor(t * (climbing ? 5.5 : 2.5)) % 4;
+    const fi = still ? 1 : Math.floor(t * (climbing ? 4 : 2)) % 4;
     const spr = frames[fi];
-    const bob = still ? 0 : Math.round(Math.sin(t * 1.1) * 1.5);
+    const bob = still ? 0 : Math.round(Math.sin(t * 0.8) * 1.5);
     blit(spr, cx - spr.width / 2, ey - spr.height / 2 + bob);
   }
 
@@ -1947,7 +2101,7 @@ const Scene = (() => {
     $('nextBtn').textContent = state.idx + 1 >= state.prompts.length ? 'See your flight' : 'Next prompt';
     show('reveal');
     place('revealSky', 0.62, 0.45);
-    if (animate) Scene.fly(before * 10, after * 10, 3800);
+    if (animate) Scene.fly(before * 10, after * 10, 5500);
     else { Scene.set(after * 10); Scene.snap(); }
     revealAt = Date.now();
     $('live').textContent = r.tier ? `${tierName(r.tier)}, tier ${r.tier}. The eagle climbs ${fmt(r.pts * 10)} metres.` : `${(r.timedOut ? 'Time’s up' : 'Passed')}. No height gained.`;
@@ -1989,7 +2143,7 @@ const Scene = (() => {
     setMaxAltitude();
     place('endSky', 0.55, 0.45);
     Scene.set(0); Scene.snap();
-    Scene.fly(0, pts * 10, 6500);   // replay the whole climb from the roof
+    Scene.fly(0, pts * 10, 9000);   // replay the whole climb from the roof
     updateCountdown();
   }
 
@@ -2108,7 +2262,7 @@ const Scene = (() => {
         rows[i].classList.add('in');
       }
     }
-    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 5000);
+    if (top[0]) Scene.fly(0, top[0].alt, still ? 0 : 7000);
   }
   function startBoardPolling() {
     clearInterval(boardTimer);
