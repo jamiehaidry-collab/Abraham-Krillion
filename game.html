@@ -25,7 +25,7 @@
 
   Tiers (1 = almost everyone says it, 6 = almost nobody does):
       1 Perch 10 pts | 2 Treetops 15   | 3 Clifftop 30
-      4 Clouds 60    | 5 Jet Stream 85 | 6 Zenith 100
+      4 Clouds 60    | 5 Jet Stream 85 | 6 One in an Abrahamillion 100
 
   "= 0" marks a known WRONG answer. Use it when a wrong answer is one
   typo away from a right one (e.g. Iceland vs Ireland) so it can't score.
@@ -413,6 +413,7 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .rprompt{font-size:19px;line-height:1.15;color:var(--muted);margin-bottom:10px}
 .your{font-size:24px;overflow-wrap:anywhere;margin-top:4px}
 .vtier{font-family:var(--title);font-weight:700;font-size:clamp(32px,10.5vw,46px);line-height:1;color:var(--c,#fff);text-shadow:3px 3px 0 var(--ink);margin:10px 0 6px;overflow-wrap:anywhere}
+.vtier.long{font-size:clamp(24px,7.2vw,36px);line-height:1.05}
 .ladder{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:start}
 .rung{display:flex;flex-direction:column;gap:5px;padding-top:calc((5 - var(--i)) * 9px);min-width:0;text-align:center}
 .rung-block{display:grid;place-items:center;height:30px;background:var(--panel-2);box-shadow:inset 0 0 0 3px #22375a;color:#61789a;font-size:20px;line-height:1}
@@ -695,7 +696,7 @@ const Engine = (() => {
     { name: 'Clifftop',   pts: 30 },
     { name: 'Clouds',     pts: 60 },
     { name: 'Jet Stream', pts: 85 },
-    { name: 'Zenith',     pts: 100 },
+    { name: 'One in an Abrahamillion', pts: 100 },
   ];
   const points = (tier) => (tier >= 1 && tier <= TIERS.length ? TIERS[tier - 1].pts : 0);
 
@@ -1648,7 +1649,7 @@ const Scene = (() => {
   const KEY = 'abrahamillion.v1.';
   const { TIERS } = Engine;
   const MAX_PTS = Math.max(...TIERS.map((t) => t.pts));
-  // One colour per tier, Perch to Zenith.
+  // One colour per tier, Perch to One in an Abrahamillion.
   const TIER_COLOURS = ['#8fd36a', '#4fd1a5', '#72dbef', '#b9a2ff', '#ff86ad', '#ffd166'];
   const MISS_COLOUR = '#ff6b86';
 
@@ -1659,6 +1660,8 @@ const Scene = (() => {
   const metresHTML = (pts) => `${fmt(pts * 10)}<span class="unit"> m</span>`;
   const pad = (n) => String(n).padStart(2, '0');
   const tierColour = (t) => (t ? TIER_COLOURS[t - 1] : MISS_COLOUR);
+  // Tier names in HTML; long words may break with a hyphen in narrow spaces (Abraham-illion).
+  const tierHTML = (name) => esc(name).replace(/Abrahamillion/g, 'Abraham&shy;illion');
   const reducedMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   const bank = Engine.parseBank($('question-bank').textContent);
@@ -1751,7 +1754,7 @@ const Scene = (() => {
     $('homeDate').textContent = Engine.formatDay(today);
     $('chart').innerHTML = TIERS.map((t, i) =>
       `<li style="--i:${i};--c:${TIER_COLOURS[i]}"><span class="chart-step" aria-hidden="true"><i></i></span>` +
-      `<span class="chart-name">${i + 1} ${esc(t.name)}</span><span class="chart-pts">${t.pts} pts</span>` +
+      `<span class="chart-name">${i + 1} ${tierHTML(t.name)}</span><span class="chart-pts">${t.pts} pts</span>` +
       `<span class="chart-m">${metresHTML(t.pts)}</span></li>`).reverse().join('');
     const box = $('bankErrors');
     box.hidden = !bank.errors.length;
@@ -1887,7 +1890,7 @@ const Scene = (() => {
     ol.classList.toggle('static', !animate);
     ol.innerHTML = TIERS.map((t, i) => {
       const cls = `rung${i < tier ? ' lit' : ''}${i === tier - 1 ? ' reached' : ''}`;
-      return `<li class="${cls}" style="--i:${i};--c:${TIER_COLOURS[i]}"><span class="rung-block" aria-hidden="true">${i + 1}</span><span class="rung-name">${esc(t.name)}</span></li>`;
+      return `<li class="${cls}" style="--i:${i};--c:${TIER_COLOURS[i]}"><span class="rung-block" aria-hidden="true">${i + 1}</span><span class="rung-name">${tierHTML(t.name)}</span></li>`;
     }).join('');
   }
   function renderGroups(p, r) {
@@ -1901,7 +1904,7 @@ const Scene = (() => {
           return `<li class="chip${you ? ' you' : ''}">${esc(e.display)}${you ? '<span class="you-tag">You</span>' : ''}</li>`;
         }).join('')
         : '<li class="chip none">None this high</li>';
-      return `<section class="group${n <= r.tier ? ' lit' : ''}" style="--c:${TIER_COLOURS[i]}"><h3><span class="gn">${n}</span><span class="tn">${esc(t.name)}</span>` +
+      return `<section class="group${n <= r.tier ? ' lit' : ''}" style="--c:${TIER_COLOURS[i]}"><h3><span class="gn">${n}</span><span class="tn">${tierHTML(t.name)}</span>` +
         `<span class="gm">${metresHTML(t.pts)}</span></h3><ul class="chips">${items}</ul></section>`;
     }).reverse().join('');
   }
@@ -1918,7 +1921,9 @@ const Scene = (() => {
     $('verdict').style.setProperty('--c', colour);
     const tried = (r.wrong || []).length;
     $('vYour').innerHTML = r.tier ? `“${esc(r.answer)}”` : (tried ? `<span class="fine">Tried: ${esc(r.wrong.join(', '))}</span>` : '<span class="fine">No answer</span>');
-    $('vTier').textContent = r.tier ? tierName(r.tier) : (r.timedOut ? 'Time’s up' : 'Passed');
+    const vName = r.tier ? tierName(r.tier) : (r.timedOut ? 'Time’s up' : 'Passed');
+    $('vTier').innerHTML = tierHTML(vName);
+    $('vTier').classList.toggle('long', vName.length > 14);
     let note;
     if (r.tier) {
       const same = Engine.normalize(r.answer).replace(/ /g, '') === Engine.normalize(r.match).replace(/ /g, '');
@@ -1970,7 +1975,7 @@ const Scene = (() => {
     $('resultsBody').innerHTML = state.results.map((r, i) =>
       `<tr><td class="n">${pad(i + 1)}</td>` +
       `<td><span class="q">${esc(r.prompt)}</span><span class="a">${r.tier ? esc(r.answer) : `<span class="fine">${(r.wrong || []).length ? `Tried: ${esc(r.wrong.join(', '))}` : 'No answer'}</span>`}</span></td>` +
-      `<td class="tier" style="--c:${tierColour(r.tier)}">${r.tier ? esc(tierName(r.tier)) : (r.timedOut ? 'Time’s up' : 'Passed')}</td>` +
+      `<td class="tier" style="--c:${tierColour(r.tier)}">${r.tier ? tierHTML(tierName(r.tier)) : (r.timedOut ? 'Time’s up' : 'Passed')}</td>` +
       `<td class="climb">${metresHTML(r.pts)}</td></tr>`).join('');
     $('resultsTotal').innerHTML = metresHTML(pts);
     $('copyStatus').textContent = '';

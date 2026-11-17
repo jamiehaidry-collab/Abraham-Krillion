@@ -23,7 +23,7 @@ Mr Geyton / Geyton = 3
 
 - `#` starts a prompt.
 - Each answer goes on its own line: main spelling first, other spellings after `/`, then `=` and the tier.
-- Tiers: 1 Perch (10 pts), 2 Treetops (15), 3 Clifftop (30), 4 Clouds (60), 5 Jet Stream (85), 6 Zenith (100). One point is 10 m of altitude, so a perfect flight reaches 10,000 m. Wrong answers don't end a prompt: players keep trying until the 40 seconds run out, and their first right answer locks in. Nothing right in time shows "Time's up" and scores 0; tapping Pass shows "Passed".
+- Tiers: 1 Perch (10 pts), 2 Treetops (15), 3 Clifftop (30), 4 Clouds (60), 5 Jet Stream (85), 6 One in an Abrahamillion (100). One point is 10 m of altitude, so a perfect flight reaches 10,000 m. Wrong answers don't end a prompt: players keep trying until the 40 seconds run out, and their first right answer locks in. Nothing right in time shows "Time's up" and scores 0; tapping Pass shows "Passed".
 - `= 0` marks a known wrong answer that is one typo away from a right one (e.g. `Iceland = 0` under EU countries), so it can't score.
 - If anything in the bank is malformed, the home screen shows a "Question bank needs fixing" box with line numbers.
 
