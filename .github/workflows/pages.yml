@@ -3,9 +3,9 @@
 # locks the game behind that password. Without it, anyone with the link can play.
 name: Publish game
 
+# Manual for now (Actions > Publish game > Run workflow). To publish on every push once the
+# site is live, add back:  push: { branches: [claude/quirky-rubin-65d8pq, main] }
 on:
-  push:
-    branches: [claude/quirky-rubin-65d8pq, main]
   workflow_dispatch:
 
 permissions:

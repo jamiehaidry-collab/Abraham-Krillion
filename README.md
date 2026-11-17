@@ -43,7 +43,7 @@ This needs Node 18 or later and nothing else. It checks the answer matching (inc
 
 ## Hosting
 
-GitHub Pages. The workflow in `.github/workflows/pages.yml` runs on every push: it checks the questions with the tests, builds `dist/index.html` with `tools/build.mjs`, and publishes it.
+GitHub Pages. The workflow in `.github/workflows/pages.yml` (run it from Actions → Publish game; it can be switched to run on every push once the site is live) checks the questions with the tests, builds `dist/index.html` with `tools/build.mjs`, and publishes it.
 
 - **Open (default):** anyone with the link can play.
 - **Locked (optional):** add a repository secret named `SITE_PASSWORD` (Settings → Secrets and variables → Actions, 8+ characters) and the game is encrypted behind that password. Players enter it once per device. Delete the secret to open it up again.
