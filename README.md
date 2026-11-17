@@ -25,7 +25,7 @@ You don't need to list versions that differ only by capitals, accents, punctuati
 
 When an answer could match more than one entry, the closest match wins (so "Mrs Kulin" scores as Mrs Kulin, not Mr Kulin). If it's a tie, the more common (lower) tier wins (so "Kulin" scores as Mr Kulin).
 
-Each day's 10 prompts come from the whole bank. Everyone gets the same 10, and no prompt repeats until the whole bank has been used. Changing answers or tiers is safe at any time. Adding, removing or renaming a `#` prompt changes which prompts come up, so do that before or after the day's dive, not during it.
+Each day's 10 prompts come from the whole bank. Everyone gets the same 10, and no prompt repeats until the whole bank has been used. Changing answers or tiers is safe at any time. Adding, removing or renaming a `#` prompt changes which prompts come up, so do that before or after the day's flight, not during it.
 
 ## Tests
 
