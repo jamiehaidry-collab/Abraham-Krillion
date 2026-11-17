@@ -322,15 +322,15 @@ describe('dates and sharing', () => {
   test('share text has tiers and altitude but no answers', () => {
     const results = [
       { answer: 'Bakerloo', tier: 3, pts: 30 },
-      { answer: 'Elizabeth', tier: 0, pts: 0 },
+      { answer: '', wrong: ['Elizabeth'], tier: 0, pts: 0, timedOut: true },
       { answer: '', tier: 0, pts: 0 },
       { answer: 'Oganesson', tier: 6, pts: 100 },
     ];
     const text = Engine.shareText({ date: '2026-11-17', results, url: 'https://example.org/' });
     assert.match(text, /^ABRAHAMILLION\nDaily Flight · Tue 17 Nov 2026\n/);
     assert.match(text, /1,300 m high \(130\/400 pts\)/);
-    assert.match(text, /01 Clifftop\n02 Grounded\n03 Grounded\n04 Zenith/);
-    assert.ok(!/Bakerloo|Oganesson/.test(text));
+    assert.match(text, /01 Clifftop\n02 Time's up\n03 Passed\n04 Zenith/);
+    assert.ok(!/Bakerloo|Oganesson|Elizabeth/.test(text));
     assert.ok(text.endsWith('https://example.org/'));
   });
   test('points per tier', () => {

@@ -1,6 +1,6 @@
 # Abrahamillion
 
-A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the eagle flies: it starts perched on a pixel-art Abraham House in a sunlit wood and climbs through the clouds into the night sky with every answer. Fan-made, based on [Krillion](https://krillion.io) by kp.
+A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts, 40 seconds each; players can keep guessing until their first right answer. The rarer a correct answer, the higher the eagle flies: it starts perched on a pixel-art Abraham House in a sunlit wood and climbs through the clouds into the night sky with every answer. Fan-made, based on [Krillion](https://krillion.io) by kp.
 
 The whole game is one file, `game.html`, which also holds the question bank. It can be published open to anyone with the link, or locked with a house password (see Hosting). There is no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
 
@@ -23,7 +23,7 @@ Mr Geyton / Geyton = 3
 
 - `#` starts a prompt.
 - Each answer goes on its own line: main spelling first, other spellings after `/`, then `=` and the tier.
-- Tiers: 1 Perch (10 pts), 2 Treetops (15), 3 Clifftop (30), 4 Clouds (60), 5 Jet Stream (85), 6 Zenith (100). One point is 10 m of altitude, so a perfect flight reaches 10,000 m. Wrong or blank answers are "Grounded".
+- Tiers: 1 Perch (10 pts), 2 Treetops (15), 3 Clifftop (30), 4 Clouds (60), 5 Jet Stream (85), 6 Zenith (100). One point is 10 m of altitude, so a perfect flight reaches 10,000 m. Wrong answers don't end a prompt: players keep trying until the 40 seconds run out, and their first right answer locks in. Nothing right in time shows "Time's up" and scores 0; tapping Pass shows "Passed".
 - `= 0` marks a known wrong answer that is one typo away from a right one (e.g. `Iceland = 0` under EU countries), so it can't score.
 - If anything in the bank is malformed, the home screen shows a "Question bank needs fixing" box with line numbers.
 
