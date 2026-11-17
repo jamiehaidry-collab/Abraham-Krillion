@@ -2,7 +2,7 @@
 
 A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the eagle flies: it starts perched on a pixel-art Abraham House in a sunlit wood and climbs through the clouds into the night sky with every answer. Fan-made, based on [Krillion](https://krillion.io) by kp.
 
-The whole game is one file, `game.html`, which also holds the question bank. It's locked with a house password before it goes online (see Hosting), so only people with the link and the password can play. There is no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
+The whole game is one file, `game.html`, which also holds the question bank. It can be published open to anyone with the link, or locked with a house password (see Hosting). There is no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
 
 ## Screens
 
@@ -43,20 +43,24 @@ This needs Node 18 or later and nothing else. It checks the answer matching (inc
 
 ## Hosting
 
-GitHub Pages, from this private repository. The workflow in `.github/workflows/pages.yml` runs on every push: it checks the questions with the tests, runs `tools/build.mjs` to encrypt `game.html` with the house password into `dist/index.html`, and publishes that. The repository stays private and the password is never stored in it.
+GitHub Pages. The workflow in `.github/workflows/pages.yml` runs on every push: it checks the questions with the tests, builds `dist/index.html` with `tools/build.mjs`, and publishes it.
 
-Pages from a private repository needs GitHub Pro (free for students through the GitHub Student Developer Pack). Then, once:
+- **Open (default):** anyone with the link can play.
+- **Locked (optional):** add a repository secret named `SITE_PASSWORD` (Settings → Secrets and variables → Actions, 8+ characters) and the game is encrypted behind that password. Players enter it once per device. Delete the secret to open it up again.
 
-1. Settings → Secrets and variables → Actions → New repository secret: name `SITE_PASSWORD`, value the house password (8+ characters; three random words work well).
-2. Settings → Pages → Build and deployment → Source: **GitHub Actions**.
-3. Actions → Publish game → Run workflow (or push any change).
+GitHub Pages is free for public repositories. From a private repository it needs GitHub Pro (free for students through the GitHub Student Developer Pack).
 
-The link appears in Settings → Pages and on the finished workflow run. Players enter the password once per device ("Remember on this device") and stay signed in through updates. To change the password, update the secret and re-run the workflow: everyone is asked for the new one. If the question bank has a mistake, the tests fail and the live game is left as it was until it's fixed.
+To publish:
 
-To build the locked page yourself: `SITE_PASSWORD='your password' node tools/build.mjs`.
+1. Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+2. Actions → Publish game → Run workflow (or push any change).
+
+The link appears in Settings → Pages and on the finished workflow run. If the question bank has a mistake, the tests fail and the live game is left as it was until it's fixed.
+
+To build it yourself: `node tools/build.mjs` (open) or `SITE_PASSWORD='your password' node tools/build.mjs` (locked).
 
 ## Limits of a no-backend game
 
-- Without the password, the page shows only the password box; the questions and answers are encrypted. Anyone who has the password can read the answers in the page source, and boys can pass the password on, so change it if it spreads.
+- Published open, anyone with the link can play and can read the answers in the page source. Locked, people without the password see only the password box; anyone with the password can still read the answers.
 - "One go per day" is stored on the phone (localStorage). A private tab or cleared browser data gives another go.
 - The day rolls over at midnight UK time.

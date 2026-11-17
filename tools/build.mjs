@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-// Builds the password-locked site: encrypts game.html with the house password into dist/index.html.
+// Builds the site into dist/index.html.
+//   - With SITE_PASSWORD set, the game is encrypted behind a password page.
+//   - Without it, the game is published as it is: anyone with the link can play.
 //
-//   SITE_PASSWORD='your house password' node tools/build.mjs
+//   SITE_PASSWORD='your house password' node tools/build.mjs     (locked)
+//   node tools/build.mjs                                          (open to anyone with the link)
 //
 // On GitHub this runs automatically (.github/workflows/pages.yml) using the repository secret
 // SITE_PASSWORD. The password is never stored in the repository.
@@ -48,19 +51,24 @@ export function renderGate(gameHtml, payload, template) {
     .replace('__PAYLOAD__', () => JSON.stringify(payload));
 }
 
+// The published page: the game itself, or the password page when a password is given.
+export async function buildPage(game, password, template) {
+  if (!password) return game;
+  if (password.length < 8) throw new Error('SITE_PASSWORD must be at least 8 characters.');
+  return renderGate(game, await encrypt(game, password), template);
+}
+
 async function main() {
   const password = process.env.SITE_PASSWORD || '';
-  if (password.length < 8) {
-    console.error('Build stopped: set SITE_PASSWORD (at least 8 characters) so the game is locked.\n' +
-      'On GitHub: Settings > Secrets and variables > Actions > New repository secret named SITE_PASSWORD, then re-run the workflow.');
-    process.exit(1);
-  }
   const game = readFileSync(path.join(ROOT, 'game.html'), 'utf8');
   const template = readFileSync(path.join(ROOT, 'tools', 'gate.html'), 'utf8');
   const out = path.join(ROOT, process.env.OUT_DIR || 'dist');
+  let page;
+  try { page = await buildPage(game, password, template); } catch (e) { console.error(`Build stopped: ${e.message}`); process.exit(1); }
   mkdirSync(out, { recursive: true });
-  writeFileSync(path.join(out, 'index.html'), renderGate(game, await encrypt(game, password), template));
-  console.log(`Locked site written to ${path.relative(ROOT, out) || '.'}/index.html`);
+  writeFileSync(path.join(out, 'index.html'), page);
+  console.log(password ? 'Locked with the house password.' : 'No SITE_PASSWORD set: published open to anyone with the link.');
+  console.log(`Written to ${path.relative(ROOT, out) || '.'}/index.html`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

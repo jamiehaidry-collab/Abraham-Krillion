@@ -1,6 +1,6 @@
-# Builds the password-locked game and publishes it with GitHub Pages.
-# Needs: Settings > Pages > Source "GitHub Actions", and a repository secret named SITE_PASSWORD
-# (Settings > Secrets and variables > Actions). Without the secret the build stops on purpose.
+# Builds the game and publishes it with GitHub Pages (Settings > Pages > Source "GitHub Actions").
+# Optional: a repository secret named SITE_PASSWORD (Settings > Secrets and variables > Actions)
+# locks the game behind that password. Without it, anyone with the link can play.
 name: Publish game
 
 on:
@@ -27,7 +27,7 @@ jobs:
           node-version: 22
       - name: Check the questions and the lock
         run: node --test tests/*.test.mjs
-      - name: Build the password-locked page
+      - name: Build the page
         env:
           SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
         run: node tools/build.mjs
