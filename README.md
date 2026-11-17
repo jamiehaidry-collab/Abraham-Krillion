@@ -41,6 +41,19 @@ node --test tests/*.test.mjs
 
 This needs Node 18 or later and nothing else. It checks the answer matching (including that every spelling in the real bank scores as its own answer, so run it after editing the bank) and the password lock.
 
+## Leaderboard (for the big screen)
+
+After their flight, each boy types his name and taps **Send**, and his altitude goes to a Google Form. The big screen is the game's link with `?board` on the end (for example `https://<username>.github.io/<repo>/?board`). It shows how many eagles have landed and the house average, refreshing every few seconds. **Reveal the top 10** counts down from 10th to 1st, and the eagle flies to the winner's altitude. The host can hide any name with its ×, and nothing else changes.
+
+Setup, once (about 5 minutes, best with a personal Google account, because school accounts can block people from outside):
+
+1. At forms.google.com, make a blank form (e.g. "Abrahamillion results") with three **Short answer** questions titled **Name**, **Altitude** and **Tiers**.
+2. In the form's **Settings**, under Responses, make sure it does **not** collect email addresses, does **not** limit to 1 response and is **not** restricted to your organisation, so boys can send without signing in.
+3. **⋮ → Get pre-filled link**, type `NAME`, `ALTITUDE` and `TIERS` as the three answers, then **Get link → Copy link**. Paste it after `form =` in the leaderboard settings near the top of `game.html`.
+4. **Responses → Link to Sheets → Create a new spreadsheet.** In the sheet, **Share → General access → Anyone with the link (Viewer) → Copy link**. Paste it after `results =`.
+
+Leave both blank and the leaderboard stays switched off. Each name counts once (their first send), and scores are capped at the maximum possible. Anyone who digs the form link out of the page could send a fake score, which is what the host's hide button is for.
+
 ## Hosting
 
 GitHub Pages. The workflow in `.github/workflows/pages.yml` (run it from Actions → Publish game; it can be switched to run on every push once the site is live) checks the questions with the tests, builds `dist/index.html` with `tools/build.mjs`, and publishes it.
