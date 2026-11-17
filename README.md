@@ -1,8 +1,8 @@
-# High Flyer
+# Abrahamillion
 
-A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the Abraham eagle flies: each answer adds altitude, and the eagle climbs a flight chart after every prompt. Fan-made, based on [Krillion](https://krillion.io) by kp.
+A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the eagle flies: it starts perched on a pixel-art Abraham House and climbs through the clouds into the night sky with every answer. Fan-made, based on [Krillion](https://krillion.io) by kp.
 
-Everything is in one file, `index.html`. There is no build step and no server code. The eagle is an inline SVG drawn for this game; to use the official house logo instead, replace the `<symbol id="eagle">` near the top of `<body>`.
+Everything is in one file, `index.html`. There is no build step and no server code. The pixel art (house, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
 
 ## Editing the questions
 
