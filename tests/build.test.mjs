@@ -15,7 +15,7 @@ test('the right password opens the game and the wrong one does not', async () =>
 
 test('the locked page contains no questions or answers in plain text', async () => {
   const page = renderGate(game, await encrypt(game, 'correct horse battery', 1000), template);
-  for (const secret of ['Name a London Underground line', 'Waterloo & City', 'Oganesson', 'ENGINE START']) {
+  for (const secret of ['Name a member of Abraham staff', 'Kipferler', 'Pardon My French', 'ENGINE START']) {
     assert.ok(!page.includes(secret), `"${secret}" leaked into the locked page`);
   }
   assert.ok(page.includes('House password'));

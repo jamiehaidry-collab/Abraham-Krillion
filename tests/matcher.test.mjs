@@ -257,9 +257,9 @@ Ireland = 2
 
 describe('the real question bank', () => {
   const { prompts, errors } = Engine.parseBank(BANK);
-  test('parses with no errors and has at least 10 prompts', () => {
+  test('parses with no errors and has the house prompts', () => {
     assert.deepEqual(errors, []);
-    assert.ok(prompts.length >= 10, `only ${prompts.length} prompts`);
+    assert.ok(prompts.length >= 9, `only ${prompts.length} prompts`);
   });
   test('every listed spelling scores as its own answer', () => {
     for (const p of prompts) {
@@ -274,13 +274,15 @@ describe('the real question bank', () => {
   });
   test('spot checks', () => {
     const find = (t) => prompts.find((p) => p.text.startsWith(t));
-    assert.equal(hit('the jubilee line', find('Name a London Underground')), 'Jubilee');
-    assert.equal(hit('Harold Wilson', find('Name a UK Prime Minister')), 'Harold Wilson');
-    assert.equal(hit('Boris Johnson', find('Name a UK Prime Minister')), null);
-    assert.equal(hit('Iceland', find('Name a member state')), null);
-    assert.equal(hit('Australia', find('Name a member state')), null);
-    assert.equal(hit('Pluto', find('Name a planet')), null);
-    assert.equal(hit('Stanstead', find('Name a London airport')), 'Stansted');
+    assert.equal(hit('Ms Willis', find('Name a member of Abraham staff')), 'Miss Willis');
+    assert.equal(hit('Mrs Geyton', find('Name a member of Abraham staff')), null);
+    assert.equal(hit('Fran', find('Name a School Prefect')), 'Francisco');
+    assert.equal(hit('Daniel', find('Name a School Prefect')), null);
+    assert.equal(hit('Australia', find('Name a nationality')), 'Australian');
+    assert.equal(hit('Iceland', find('Name a nationality')), null);
+    assert.equal(hit('Coop', find('Name a business in Kemp Town')), 'Co-op');
+    assert.equal(hit('Shop', find('Name a business in Kemp Town')), null);
+    assert.equal(hit('Marmitte', find('Name a condiment')), 'Marmite');
   });
 });
 
