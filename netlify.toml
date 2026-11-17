@@ -1,0 +1,11 @@
+# Netlify builds the password-locked game from game.html.
+# Set SITE_PASSWORD under Site configuration > Environment variables, or the build stops on purpose.
+[build]
+  command = "node tools/build.mjs"
+  publish = "dist"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"

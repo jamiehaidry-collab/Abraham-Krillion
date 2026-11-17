@@ -1,10 +1,10 @@
-// Unit tests for the game engine inside index.html.
+// Unit tests for the game engine inside game.html.
 // Run with:  node --test tests/
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../game.html', import.meta.url), 'utf8');
 const engineSrc = html.match(/\/\* === ENGINE START === \*\/([\s\S]*?)\/\* === ENGINE END === \*\//)[1];
 const Engine = new Function(`${engineSrc}\nreturn Engine;`)();
 const BANK = html.match(/<script type="text\/plain" id="question-bank">([\s\S]*?)<\/script>/)[1];

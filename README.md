@@ -2,7 +2,7 @@
 
 A daily rare-answer trivia game for Abraham House, Brighton College. Ten open prompts a day, 40 seconds each, one answer per prompt. The rarer a correct answer, the higher the eagle flies: it starts perched on a pixel-art Abraham House in a sunlit wood and climbs through the clouds into the night sky with every answer. Fan-made, based on [Krillion](https://krillion.io) by kp.
 
-Everything is in one file, `index.html`. There is no build step and no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
+The whole game is one file, `game.html`, which also holds the question bank. It's locked with a house password before it goes online (see Hosting), so only people with the link and the password can play. There is no server code. The pixel art (house, woodland, eagle, sky, clouds, gulls) is drawn in code in the `Scene` section of the script; the fonts (Jersey 10 and Silkscreen, both SIL Open Font License) are embedded.
 
 ## Screens
 
@@ -12,7 +12,7 @@ Everything is in one file, `index.html`. There is no build step and no server co
 
 ## Editing the questions
 
-Open `index.html` in any text editor. The question bank is the first big block of text in the file, between `<script type="text/plain" id="question-bank">` and `</script>`.
+Open `game.html` in any text editor. The question bank is the first big block of text in the file, between `<script type="text/plain" id="question-bank">` and `</script>`.
 
 ```
 # Name a member of Abraham house staff
@@ -36,17 +36,27 @@ Each day's 10 prompts come from the whole bank. Everyone gets the same 10, and n
 ## Tests
 
 ```
-node --test tests/matcher.test.mjs
+node --test tests/*.test.mjs
 ```
 
-This needs Node 18 or later and nothing else. It also checks that every spelling in the real bank scores as its own answer, so run it after editing the bank.
+This needs Node 18 or later and nothing else. It checks the answer matching (including that every spelling in the real bank scores as its own answer, so run it after editing the bank) and the password lock.
 
 ## Hosting
 
-GitHub Pages, from this repo: Settings → Pages → "Deploy from a branch" → choose the branch and `/ (root)` → Save. The link is `https://<username>.github.io/<repo>/`. Pages on a private repo needs a paid plan (GitHub Pro is free for students through the GitHub Student Developer Pack).
+Netlify, linked to this private repository. `netlify.toml` tells Netlify what to do: it runs `tools/build.mjs`, which encrypts `game.html` with the house password into `dist/index.html`, and publishes that. The repository stays private, and the password is never stored in it.
+
+1. Sign up at app.netlify.com with GitHub.
+2. Add a new site (project) → Import an existing project → GitHub, and allow access to this repository only.
+3. Pick this repository and the branch to deploy. Netlify reads the build settings from `netlify.toml`.
+4. Add an environment variable named `SITE_PASSWORD` with the house password (8+ characters; three random words work well). Without it the build stops on purpose rather than publish an unlocked game.
+5. Deploy, then change the site name to get a tidy link.
+
+Every push updates the site. Players enter the password once per device ("Remember on this device"); they stay signed in through updates. To change the password, edit `SITE_PASSWORD` and redeploy: everyone is asked for the new one.
+
+To build the locked page yourself: `SITE_PASSWORD='your password' node tools/build.mjs`.
 
 ## Limits of a no-backend game
 
-- The answers are in the page source, so a determined player can read them.
+- Without the password, the page shows only the password box; the questions and answers are encrypted. Anyone who has the password can read the answers in the page source, and boys can pass the password on, so change it if it spreads.
 - "One go per day" is stored on the phone (localStorage). A private tab or cleared browser data gives another go.
 - The day rolls over at midnight UK time.

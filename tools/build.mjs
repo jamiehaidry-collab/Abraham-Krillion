@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+// Builds the password-locked site: encrypts game.html with the house password into dist/index.html.
+//
+//   SITE_PASSWORD='your house password' node tools/build.mjs
+//
+// On Netlify this runs automatically (see netlify.toml); set SITE_PASSWORD under
+// Site configuration > Environment variables. The password is never stored in the repository.
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { webcrypto } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const subtle = webcrypto.subtle;
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+export const ITERATIONS = 300000;
+// A fixed salt keeps the key the same between updates, so boys only re-enter the password when it changes.
+export const SALT = 'abrahamillion-house-v1';
+const b64 = (u) => Buffer.from(u).toString('base64');
+
+async function deriveKey(password, salt, iterations, usages) {
+  const base = await subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return subtle.deriveKey({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, usages);
+}
+
+export async function encrypt(html, password, iterations = ITERATIONS) {
+  const salt = new TextEncoder().encode(SALT);
+  const iv = webcrypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt, iterations, ['encrypt']);
+  const data = await subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(html));
+  return { v: 1, iter: iterations, salt: b64(salt), iv: b64(iv), data: b64(new Uint8Array(data)) };
+}
+
+export async function decrypt(payload, password) {
+  const key = await deriveKey(password, Buffer.from(payload.salt, 'base64'), payload.iter, ['decrypt']);
+  const buf = await subtle.decrypt({ name: 'AES-GCM', iv: Buffer.from(payload.iv, 'base64') }, key, Buffer.from(payload.data, 'base64'));
+  return new TextDecoder().decode(buf);
+}
+
+// Fill the password page with the game's icons, fonts and the encrypted game.
+export function renderGate(gameHtml, payload, template) {
+  const icons = (gameHtml.match(/<link rel="(?:icon|apple-touch-icon)" href="[^"]*">/g) || []).join('\n');
+  const fonts = (gameHtml.match(/<style>@font-face[\s\S]*?<\/style>/) || [''])[0];
+  const eagle = (gameHtml.match(/<link rel="icon" href="([^"]*)">/) || [])[1] || '';
+  return template
+    .replace('__ICONS__', () => icons)
+    .replace('__FONTS__', () => fonts)
+    .replace('__EAGLE__', () => eagle)
+    .replace('__PAYLOAD__', () => JSON.stringify(payload));
+}
+
+async function main() {
+  const password = process.env.SITE_PASSWORD || '';
+  if (password.length < 8) {
+    console.error('Build stopped: set SITE_PASSWORD (at least 8 characters) so the game is locked.\n' +
+      'On Netlify: Site configuration > Environment variables > Add a variable named SITE_PASSWORD, then redeploy.');
+    process.exit(1);
+  }
+  const game = readFileSync(path.join(ROOT, 'game.html'), 'utf8');
+  const template = readFileSync(path.join(ROOT, 'tools', 'gate.html'), 'utf8');
+  const out = path.join(ROOT, process.env.OUT_DIR || 'dist');
+  mkdirSync(out, { recursive: true });
+  writeFileSync(path.join(out, 'index.html'), renderGate(game, await encrypt(game, password), template));
+  console.log(`Locked site written to ${path.relative(ROOT, out) || '.'}/index.html`);
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
