@@ -208,6 +208,21 @@ Park Lane = 1
     assert.equal(hit('Lane', monopoly), null);
     assert.equal(hit('City', tube), null);
   });
+  test('vague single words do not score, but specific phrases still do', () => {
+    const p = prompt(`# Mixed
+Brown sauce = 2
+Turkish barber = 3
+Room reward pizza night = 4
+Kemptown dry cleaners = 5
+House family football = 1
+`);
+    assert.equal(hit('Sauce', p), null);
+    assert.equal(hit('Barber', p), null);
+    assert.equal(hit('Night', p), null);
+    assert.equal(hit('Pizza night', p), 'Room reward pizza night');
+    assert.equal(hit('Dry cleaners', p), 'Kemptown dry cleaners');
+    assert.equal(hit('Football', p), 'House family football');
+  });
   test('"= 0" blocks a wrong answer that is a typo away from a right one', () => {
     const eu = prompt(`# EU
 Ireland = 2
