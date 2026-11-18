@@ -1471,7 +1471,8 @@ const Scene = (() => {
   const altToY = (alt) => PERCH_Y + 22 + CLIMB * (Math.max(0, Math.min(alt, maxAlt * 1.2)) / maxAlt);
 
   // Sky colour ramp by height (0 = ground, 1 = top of the climb).
-  const SKY_STOPS = [[0, '#fbf1c9'], [0.035, '#e2f3d4'], [0.09, '#b4e6e2'], [0.2, '#80cfe6'], [0.36, '#529fd6'], [0.52, '#4a64b6'], [0.67, '#4a3d93'], [0.8, '#2d2565'], [0.91, '#151339'], [1.0, '#080a1c']];
+  // Day sky low down, dusk by ~2,200 m, space from ~2,500 m (most players reach it).
+  const SKY_STOPS = [[0, '#fbf1c9'], [0.02, '#e2f3d4'], [0.05, '#b4e6e2'], [0.1, '#80cfe6'], [0.16, '#529fd6'], [0.21, '#4a64b6'], [0.25, '#4a3d93'], [0.3, '#2d2565'], [0.38, '#151339'], [0.55, '#080a1c'], [1.0, '#04030c']];
   const RAMP_N = 64;
   const RAMP = [];
   (() => {
@@ -1488,8 +1489,8 @@ const Scene = (() => {
 
   // Scenery positions (x as a fraction of width so they survive resizes).
   const R = rng(99);
-  const clouds = Array.from({ length: 30 }, (_, i) => ({ fx: R(), y: 160 + i * (CLIMB * 0.5 / 30) + R() * 40, k: i % 4, v: 0.5 + R() * 1.4 }));
-  const stars = Array.from({ length: 520 }, () => ({ fx: R(), y: TOP * 0.42 + R() * (TOP * 0.9), b: R(), tw: R() * 6.28 }));
+  const clouds = Array.from({ length: 24 }, (_, i) => ({ fx: R(), y: 140 + i * (CLIMB * 0.19 / 24) + R() * 30, k: i % 4, v: 0.5 + R() * 1.4 }));
+  const stars = Array.from({ length: 900 }, () => ({ fx: R(), y: TOP * 0.2 + R() * (TOP * 1.0), b: R(), tw: R() * 6.28 }));
   const gulls = Array.from({ length: 4 }, (_, i) => ({ fx: R(), y: 95 + i * 34 + R() * 20, v: 4 + R() * 6, ph: R() * 6 }));
   const TICKS = [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 
@@ -1561,17 +1562,32 @@ const Scene = (() => {
   function drawSpace(t, still, drawStars) {
     const fx = FX();
     ctx.globalAlpha = 0.5;
-    blitP(S.nebula[0], fx - 20, atF(0.62), 0.35);
-    blitP(S.nebula[1], fx + 14, atF(0.9), 0.35);
+    blitP(S.nebula[0], fx - 20, atF(0.3), 0.35);
+    blitP(S.nebula[1], fx + 14, atF(0.58), 0.35);
+    blitP(S.nebula[0], fx + 24, atF(0.84), 0.35);
     ctx.globalAlpha = 1;
     drawStars();
     ctx.globalAlpha = 1;
-    blitP(S.mars, Math.min(W - 9, fx + 38), atF(0.7), 0.5);
-    blitP(S.neptune, Math.max(11, fx - 44), atF(0.8), 0.45);
-    blitP(S.ringed, fx + 18, atF(0.88), 0.4);
-    blitP(S.bigmoon, Math.max(10, fx - 34), atF(0.97), 0.55);
+    blitP(S.mars, Math.min(W - 9, fx + 38), atF(0.34), 0.5);
+    blitP(S.neptune, Math.max(11, fx - 44), atF(0.48), 0.45);
+    blitP(S.ringed, fx + 18, atF(0.62), 0.4);
+    blitP(S.bigmoon, Math.max(10, fx - 34), atF(0.74), 0.55);
+    // A comet streaking slowly across the high sky
+    {
+      const row = syP(atF(0.88), 0.6);
+      if (row > -30 && row < H + 30) {
+        const cx = still ? fx + 20 : drift(0.3, 2.2, t, 40), len = 34;
+        for (let i = 0; i < len; i++) {
+          ctx.globalAlpha = (1 - i / len) * 0.8;
+          ctx.fillStyle = i < 4 ? '#ffffff' : i % 3 ? '#9fe8ff' : '#d8c8ff';
+          ctx.fillRect(Math.round(cx - i), Math.round(row - i * 0.45), 1, 2);
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(cx), row - 1, 2, 2);
+      }
+    }
     // Shooting stars once the sky is dark
-    if (!still && cam + H > atF(0.45)) {
+    if (!still && cam + H > atF(0.22)) {
       const seg = Math.floor(t / 4), ph = t - seg * 4;
       const rr = rng(seg * 7919 + 13);
       if (ph < 0.7 && rr() < 0.75) {
@@ -1584,22 +1600,22 @@ const Scene = (() => {
         ctx.globalAlpha = 1;
       }
     }
-    blit(S.sat, still ? fx - 30 : drift(0.2, 3, t, 20), atF(0.58));
-    const stX = still ? fx - 20 : drift(0.6, 1.5, t, 50), stY = atF(0.76);
+    blit(S.sat, still ? fx - 30 : drift(0.2, 3, t, 20), atF(0.27));
+    const stX = still ? fx - 20 : drift(0.6, 1.5, t, 50), stY = atF(0.41);
     blit(S.station, stX, stY);
     if (!still && Math.floor(t * 1.5) % 2) { ctx.fillStyle = '#ff5f6b'; ctx.fillRect(Math.round(stX) + 21, sy(stY) - S.station.height + 3, 1, 1); }
     blit(S.astro, stX + 46, stY + 6 + (still ? 0 : Math.round(Math.sin(t * 0.8) * 2)));
-    const rkSpan = CLIMB * 0.16;
-    blit(S.rocket[still ? 0 : Math.floor(t * 8) % 2], Math.min(W - 12, fx + 50), atF(0.82) + (still ? rkSpan / 2 : (t * 8) % rkSpan));
-    blit(S.ufo[still ? 0 : Math.floor(t * 2) % 2], fx - 6 + (still ? 0 : Math.sin(t * 0.4) * 30), atF(1.03));
+    const rkSpan = CLIMB * 0.14;
+    blit(S.rocket[still ? 0 : Math.floor(t * 8) % 2], Math.min(W - 12, fx + 50), atF(0.52) + (still ? rkSpan / 2 : (t * 8) % rkSpan));
+    blit(S.ufo[still ? 0 : Math.floor(t * 2) % 2], fx - 6 + (still ? 0 : Math.sin(t * 0.4) * 30), atF(0.95));
   }
   function drawSkyTraffic(t, still) {
     const fx = FX();
-    blit(S.balloon, still ? fx - 40 : drift(0.1, 1.2, t, 14), atF(0.1) + (still ? 0 : Math.round(Math.sin(t * 0.6) * 2)));
-    const gx = still ? fx : drift(0.4, 5, t, 30), gy = atF(0.2), fr = still ? 0 : Math.floor(t * 3) % 2;
+    blit(S.balloon, still ? fx - 40 : drift(0.1, 1.2, t, 14), atF(0.045) + (still ? 0 : Math.round(Math.sin(t * 0.6) * 2)));
+    const gx = still ? fx : drift(0.4, 5, t, 30), gy = atF(0.085), fr = still ? 0 : Math.floor(t * 3) % 2;
     for (const [dx, dy] of [[0, 0], [-6, -3], [-12, -6], [-6, 3], [-12, 6]]) blit(S.goose[fr], gx + dx, gy + dy);
     // A little plane towing a banner for the house
-    const label = 'GO ABRAHAM!', bw = textWidth(label) + 6, wy = atF(0.28);
+    const label = 'GO ABRAHAM!', bw = textWidth(label) + 6, wy = atF(0.125);
     const px = still ? fx + 30 : drift(0.7, 4, t, bw + 24), row = sy(wy);
     if (row > -12 && row < H + 12) {
       const bx = Math.round(px - 6 - bw), by = row - 9;
@@ -1610,7 +1626,7 @@ const Scene = (() => {
       blit(S.bplane, px, wy);
     }
     // Airliner at cruising height, with a contrail
-    const jy = atF(0.38), jx = (still ? 0.3 : ((t * 6) / (W + 60)) % 1) * (W + 60) - 30, jr = sy(jy);
+    const jy = atF(0.17), jx = (still ? 0.3 : ((t * 6) / (W + 60)) % 1) * (W + 60) - 30, jr = sy(jy);
     if (jr > -10 && jr < H + 10) {
       ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(Math.round(jx - 40), jr - 3, 40, 1);
       ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(Math.round(jx - 70), jr - 3, 30, 1);
@@ -1631,7 +1647,7 @@ const Scene = (() => {
     drawSpace(t, still, () => {
     for (const s of stars) {
       const row = sy(s.y); if (row < 0 || row >= H) continue;
-      const f = (s.y / TOP - 0.42) / 0.25; if (f <= 0) continue;
+      const f = (s.y / TOP - 0.2) / 0.1; if (f <= 0) continue;
       const tw = still ? 1 : 0.6 + 0.4 * Math.sin(t * 2 + s.tw);
       ctx.globalAlpha = Math.min(1, f) * (0.35 + 0.65 * s.b) * tw;
       ctx.fillStyle = s.b > 0.9 ? '#ffd6e6' : s.b > 0.8 ? '#c2f3ff' : '#fffaf0';
