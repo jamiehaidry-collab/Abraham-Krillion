@@ -259,7 +259,7 @@ describe('the real question bank', () => {
   const { prompts, errors } = Engine.parseBank(BANK);
   test('parses with no errors and has the house prompts', () => {
     assert.deepEqual(errors, []);
-    assert.ok(prompts.length >= 9, `only ${prompts.length} prompts`);
+    assert.equal(prompts.length, 10, `${prompts.length} prompts`);
   });
   test('every listed spelling scores as its own answer', () => {
     for (const p of prompts) {
@@ -283,6 +283,13 @@ describe('the real question bank', () => {
     assert.equal(hit('Coop', find('Name a business in Kemp Town')), 'Co-op');
     assert.equal(hit('Shop', find('Name a business in Kemp Town')), null);
     assert.equal(hit('Marmitte', find('Name a condiment')), 'Marmite');
+    const hoh = find('Name a Head of House');
+    assert.equal(hit('Gavin', hoh), 'Gavin Austin');
+    assert.equal(hit('Whatman', hoh), 'M. Whatman');
+    assert.equal(hit('Mr Whatman', hoh), 'M. Whatman');
+    assert.equal(hit('Yusuf Bhacker', hoh), 'Yousef Bhacker');
+    assert.equal(hit('Taylor', hoh), 'Benedict Nagle Taylor');
+    assert.equal(hit('Daniel', hoh), null, 'two Daniels: a surname is needed');
   });
 });
 
