@@ -312,10 +312,13 @@ Pardon My French = 6
     results: the link to the form's response spreadsheet, shared as
              "Anyone with the link can view"
   Leave them blank and the leaderboard stays switched off.
+    game:    the public link to the game. The big screen's "Scan to play"
+             QR code always opens this, wherever the big screen is opened.
   The big screen is this page's link with ?board on the end.
   ==================================================================
 -->
 <script type="text/plain" id="leaderboard-config">
+game = https://jamiehaidry-collab.github.io/Abraham-Krillion/
 form =
 results =
 </script>
@@ -1041,6 +1044,7 @@ const Engine = (() => {
   function boardConfig(text) {
     const get = (k) => ((String(text || '').match(new RegExp(`^[ \\t]*${k}[ \\t]*=[ \\t]*(\\S*)`, 'mi')) || [])[1] || '').trim();
     const form = get('form'), results = get('results');
+    const gameLink = /^https?:\/\/\S+$/.test(get('game')) ? get('game') : '';
     const fields = {};
     let post = '';
     try {
@@ -1054,7 +1058,7 @@ const Engine = (() => {
       const m = results.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]{20,})/);
       if (m) csv = `https://docs.google.com/spreadsheets/d/${m[1]}/gviz/tq?tqx=out:csv`;
     }
-    return { on: !!post, form, post, fields, csv };
+    return { on: !!post, form, post, fields, csv, game: gameLink };
   }
   function parseCSV(text) {
     const s = String(text || ''), rows = [];
@@ -2348,8 +2352,9 @@ const Scene = (() => {
   }
   // "Scan to play": a QR code for the game's own link, drawn crisp on a canvas.
   function renderQR() {
-    const url = location.origin + location.pathname;
-    const online = /^https?:$/.test(location.protocol) && typeof qrcode === 'function';
+    // The public game link from the settings; otherwise this page's own address.
+    const url = board.game || location.origin + location.pathname;
+    const online = (!!board.game || /^https?:$/.test(location.protocol)) && typeof qrcode === 'function';
     $('qrCanvas').hidden = !online;
     $('qrLink').textContent = online ? url.replace(/^https?:\/\//, '') : 'The QR code appears once the game is online.';
     if (!online) return;

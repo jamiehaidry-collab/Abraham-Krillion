@@ -29,6 +29,12 @@ test('a published CSV link is used as it is; blank settings switch it off', () =
 test('the live game file ships with the leaderboard switched off until links are added', () => {
   const block = html.match(/<script type="text\/plain" id="leaderboard-config">([\s\S]*?)<\/script>/)[1];
   assert.equal(Engine.boardConfig(block).on, false);
+  assert.equal(Engine.boardConfig(block).game, 'https://jamiehaidry-collab.github.io/Abraham-Krillion/', 'QR code points at the public game');
+});
+
+test('the QR link must be a web address', () => {
+  assert.equal(Engine.boardConfig('game = not a link').game, '');
+  assert.equal(Engine.boardConfig('game = https://example.org/x/').game, 'https://example.org/x/');
 });
 
 test('parses Google CSV, including quotes and commas', () => {
