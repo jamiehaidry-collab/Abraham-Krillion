@@ -356,7 +356,7 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .sky{position:relative;flex:0 0 auto;height:var(--h,200px)}
 #homeSky{--h:clamp(250px,38vh,340px)}
 #playSky{flex:1 0 140px;height:auto}
-#revealSky{--h:clamp(170px,26vh,230px)}
+#revealSky{height:clamp(170px,calc(100vh - 440px),400px);height:clamp(170px,calc(100svh - 440px),400px)}
 #endSky{--h:clamp(190px,30vh,260px)}
 .gain-pop{position:absolute;right:4%;top:14%;font-family:var(--title);font-weight:700;font-size:30px;line-height:1;color:var(--c,#fff);text-shadow:var(--ink-outline),0 5px 0 var(--ink);animation:pop .5s steps(5) both}
 @keyframes pop{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
@@ -437,6 +437,23 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .chip.you{background:var(--pink);color:var(--ink);box-shadow:inset 0 -3px 0 0 var(--pink-d)}
 .you-tag{display:inline-block;margin-left:6px;padding:2px 4px 1px;background:var(--ink);color:var(--pink-l);font-family:var(--title);font-size:10px;line-height:1;vertical-align:2px}
 .next-bar{position:sticky;bottom:0;margin-top:auto;padding:10px 0 calc(env(safe-area-inset-bottom) + 4px)}
+
+/* Compact reveal: smaller panels so more of the scene shows */
+#screen-reveal{gap:10px}
+#screen-reveal .hud .cell{padding:6px 9px 5px;gap:3px}
+#screen-reveal .hud .cell .v{font-size:26px}
+#verdict{padding:10px 12px 12px}
+#verdict .rprompt{font-size:16px;margin-bottom:6px}
+#verdict .your{font-size:20px;margin-top:2px}
+#verdict .vtier{font-size:clamp(26px,8.2vw,38px);margin:6px 0 2px}
+#verdict .vtier.long{font-size:clamp(20px,6.2vw,30px)}
+#verdict .fine{font-size:15px}
+#verdict .ladder{margin-top:10px;gap:5px}
+#verdict .rung{padding-top:calc((5 - var(--i)) * 5px);gap:4px}
+#verdict .rung-block{height:22px;font-size:15px}
+#verdict .rung-name{font-size:11px}
+#screen-reveal .next-bar{padding:8px 0 calc(env(safe-area-inset-bottom) + 2px)}
+#screen-reveal .next-bar .btn{min-height:48px;padding:10px 14px 9px;font-size:17px}
 
 /* ---------- End ---------- */
 .end-score{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
