@@ -508,6 +508,11 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 1 auto}
 .qr{display:block;width:min(260px,64vw);height:auto;aspect-ratio:1;image-rendering:pixelated;image-rendering:crisp-edges;background:#fff;box-shadow:var(--o)}
 .qr-link{max-width:min(320px,80vw);overflow-wrap:anywhere}
+.su-intro{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1 1 220px;text-align:center}
+.su-stage{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;padding:10px 0}
+.su-line{font-family:var(--title);font-weight:700;font-size:clamp(26px,7.5vw,44px);line-height:1.15;text-transform:uppercase;color:var(--gold);text-shadow:3px 3px 0 var(--ink);min-height:2.3em;display:flex;align-items:center;justify-content:center}
+.su-nav{display:flex;gap:10px;width:100%}
+.su-nav .btn{flex:1 1 0;width:auto}
 .leader{list-style:none;margin:10px 0 14px;padding:0}
 .lrow{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto 28px;align-items:center;gap:10px;padding:9px 0;border-top:3px solid var(--panel-2);
   opacity:0;transform:translateY(10px);transition:opacity .35s steps(4),transform .35s steps(4)}
@@ -553,6 +558,7 @@ body[data-screen="board"] .sky{--h:clamp(200px,30vh,300px)}
   body[data-screen="board"] .ln,body[data-screen="board"] .la{font-size:30px}
   body[data-screen="board"] .lr{font-size:24px}
   body[data-screen="board"] .qr{width:min(340px,24vw)}
+  body[data-screen="board"] .su-line{font-size:clamp(34px,3.6vw,60px)}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -701,14 +707,14 @@ body[data-screen="board"] .sky{--h:clamp(200px,30vh,300px)}
   <!-- BIG SCREEN: this page with ?board on the end -->
   <section id="screen-board" class="screen" aria-labelledby="boardTitle" hidden>
     <div class="chip-bar">
-      <span class="tagchip">House leaderboard</span>
+      <span class="tagchip" id="bTag">House leaderboard</span>
       <span class="tagchip" id="bDate"></span>
     </div>
     <h1 id="boardTitle" class="title">Abrahamillion</h1>
     <div id="boardSky" class="sky" aria-hidden="true"></div>
     <div class="panel board-panel">
       <div id="boardWait" class="board-wait">
-        <div class="bw-count">
+        <div id="bwCount" class="bw-count">
           <span class="label">Eagles landed</span>
           <b id="bCount" class="big-num">0</b>
           <span id="bAvg" class="label">Waiting for the first eagle…</span>
@@ -718,6 +724,18 @@ body[data-screen="board"] .sky{--h:clamp(200px,30vh,300px)}
           <span class="label">Scan to play</span>
           <canvas id="qrCanvas" class="qr" width="1" height="1" role="img" aria-label="QR code that opens the game"></canvas>
           <span id="qrLink" class="fine qr-link"></span>
+        </div>
+        <div id="suIntro" class="su-intro" hidden>
+          <span class="label">When everyone’s finished</span>
+          <button id="suStart" class="btn" type="button">Start the stand-up</button>
+          <p class="fine">Everyone stands, then sits down as the bar rises. Use the button or a clicker (→ and ←).</p>
+        </div>
+      </div>
+      <div id="suStage" class="su-stage" hidden>
+        <p id="suLine" class="su-line" aria-live="polite"></p>
+        <div class="su-nav">
+          <button id="suBack" class="btn blue" type="button">Back</button>
+          <button id="suNext" class="btn" type="button">Raise the bar</button>
         </div>
       </div>
       <div id="boardShown" hidden>
@@ -2348,6 +2366,33 @@ const Scene = (() => {
       for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (qr.isDark(r, k)) g.fillRect(k + quiet, r + quiet, 1, 1);
     } catch (e) { $('qrCanvas').hidden = true; }
   }
+  // ----- Stand-up reveal (used when there's no Google leaderboard) -----
+  let suStep = -1;
+  const SU_STEPS = 10;
+  function suRender() {
+    const step = BOARD_MAX / SU_STEPS;
+    $('suLine').innerHTML = suStep <= 0 ? 'Everyone stand up!'
+      : suStep < SU_STEPS ? `Sit down if you’re under ${altHTML(suStep * step)}`
+        : 'Still standing? Read out your altitude!';
+    $('suBack').disabled = suStep <= 0;
+    $('suNext').disabled = suStep >= SU_STEPS;
+    $('suNext').textContent = suStep >= SU_STEPS ? 'Top of the sky' : 'Raise the bar';
+  }
+  function suGo(step) {
+    const from = Math.max(0, suStep) * (BOARD_MAX / SU_STEPS);
+    suStep = Math.max(0, Math.min(SU_STEPS, step));
+    Scene.fly(from, suStep * (BOARD_MAX / SU_STEPS), 2500);
+    suRender();
+  }
+  function suStart() {
+    $('qrBox').hidden = true;
+    $('suIntro').hidden = true;
+    $('suStage').hidden = false;
+    suStep = -1;
+    suGo(0);
+    $('suNext').focus({ preventScroll: true });
+  }
+
   function showBoard() {
     $('bDate').textContent = Engine.formatDay(today);
     $('boardWait').hidden = false;
@@ -2358,8 +2403,15 @@ const Scene = (() => {
     Scene.set(0);
     place('boardSky', 0.2, 0.42);
     Scene.snap();
-    if (!board.csv && !board.on) $('bMsg').textContent = 'The leaderboard isn’t set up yet. See “Leaderboard” in README.md.';
-    startBoardPolling();
+    // With the Google leaderboard: live count and top-10 reveal. Without it: QR code and the stand-up.
+    const live = !!board.csv;
+    $('bTag').textContent = live ? 'House leaderboard' : 'Big screen';
+    $('bwCount').hidden = !live;
+    $('suIntro').hidden = live;
+    $('suStage').hidden = true;
+    $('qrBox').hidden = false;
+    suStep = -1;
+    if (live) startBoardPolling();
   }
 
   async function copyText(text) {
@@ -2432,6 +2484,15 @@ const Scene = (() => {
     const b = e.target.closest('.lhide'); if (!b) return;
     setHidden([...hiddenNames(), b.dataset.name]);
     renderTop(false);
+  });
+  $('suStart').addEventListener('click', suStart);
+  $('suNext').addEventListener('click', () => suGo(suStep + 1));
+  $('suBack').addEventListener('click', () => suGo(suStep - 1));
+  // Presentation clickers send arrow keys or Page Up/Down.
+  document.addEventListener('keydown', (e) => {
+    if (document.body.dataset.screen !== 'board' || $('suStage').hidden || e.target.closest('input, textarea')) return;
+    if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); suGo(suStep + 1); }
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); suGo(suStep - 1); }
   });
   $('unhideBtn').addEventListener('click', () => { setHidden([]); if ($('boardShown').hidden) renderBoardWait(); else renderTop(false); });
   $('fsBtn').addEventListener('click', toggleFS);

@@ -41,7 +41,13 @@ node --test tests/*.test.mjs
 
 This needs Node 18 or later and nothing else. It checks the answer matching (including that every spelling in the real bank scores as its own answer, so run it after editing the bank) and the password lock.
 
+## Big screen
+
+Open the game's link with `?board` on the end on the projector. While boys play, it shows the house, the eagle and a large **Scan to play** QR code. Without the Google leaderboard below, press **Start the stand-up** when everyone has finished: everyone stands, and each **Raise the bar** (or a clicker's → / Page Down) shows "Sit down if you're under 1,000 m", 2,000 m and so on while the eagle climbs to that height. **Back** (← / Page Up) undoes a step. The last boys standing read out their altitude.
+
 ## Leaderboard (for the big screen)
+
+Optional, instead of the stand-up:
 
 After their flight, each boy types his name and taps **Send**, and his altitude goes to a Google Form. The big screen is the game's link with `?board` on the end (for example `https://<username>.github.io/<repo>/?board`). It shows how many eagles have landed and the house average, refreshing every few seconds. A large **Scan to play** QR code beside the count opens the game on boys' phones (it hides when the results are revealed). **Reveal the top 10** counts down from 10th to 1st, and the eagle flies to the winner's altitude. The host can hide any name with its ×, and nothing else changes.
 
