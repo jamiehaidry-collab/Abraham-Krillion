@@ -43,7 +43,7 @@ This needs Node 18 or later and nothing else. It checks the answer matching (inc
 
 ## Leaderboard (for the big screen)
 
-After their flight, each boy types his name and taps **Send**, and his altitude goes to a Google Form. The big screen is the game's link with `?board` on the end (for example `https://<username>.github.io/<repo>/?board`). It shows how many eagles have landed and the house average, refreshing every few seconds. **Reveal the top 10** counts down from 10th to 1st, and the eagle flies to the winner's altitude. The host can hide any name with its ×, and nothing else changes.
+After their flight, each boy types his name and taps **Send**, and his altitude goes to a Google Form. The big screen is the game's link with `?board` on the end (for example `https://<username>.github.io/<repo>/?board`). It shows how many eagles have landed and the house average, refreshing every few seconds. A large **Scan to play** QR code beside the count opens the game on boys' phones (it hides when the results are revealed). **Reveal the top 10** counts down from 10th to 1st, and the eagle flies to the winner's altitude. The host can hide any name with its ×, and nothing else changes.
 
 Setup, once (about 5 minutes, best with a personal Google account, because school accounts can block people from outside):
 
